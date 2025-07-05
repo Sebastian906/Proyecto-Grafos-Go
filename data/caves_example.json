@@ -1,0 +1,37 @@
+{
+    "cuevas": [
+        {
+            "id": "CR",
+            "nombre": "Centro Recursos",
+            "x": 0,
+            "y": 0
+        },
+        {
+            "id": "C1",
+            "nombre": "Silvestre",
+            "x": 10,
+            "y": 15
+        },
+        {
+            "id": "C2",
+            "nombre": "Tazmania",
+            "x": -5,
+            "y": 20
+        }
+    ],
+    "aristas": [
+        {
+            "desde": "CR",
+            "hasta": "C1",
+            "distancia": 15,
+            "es_dirigido": false
+        },
+        {
+            "desde": "CR",
+            "hasta": "C2",
+            "distancia": 33,
+            "es_dirigido": false
+        }
+    ],
+    "es_dirigido": false
+}
