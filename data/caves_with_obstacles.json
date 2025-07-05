@@ -1,0 +1,168 @@
+{
+    "cuevas": [
+        {
+            "id": "CR",
+            "nombre": "Centro Recursos",
+            "x": 0,
+            "y": 0,
+            "recursos": {"suministros": 1000, "combustible": 500}
+        },
+        {
+            "id": "Silvestre",
+            "nombre": "Silvestre",
+            "x": -20,
+            "y": 25,
+            "recursos": {"oro": 150, "agua": 75}
+        },
+        {
+            "id": "Tazmania",
+            "nombre": "Tazmania",
+            "x": 0,
+            "y": 40,
+            "recursos": {"hierro": 200, "carbón": 100}
+        },
+        {
+            "id": "Coyote",
+            "nombre": "Coyote",
+            "x": 25,
+            "y": 45,
+            "recursos": {"diamante": 50, "piedras_preciosas": 30}
+        },
+        {
+            "id": "Bunny",
+            "nombre": "Bunny",
+            "x": 40,
+            "y": 25,
+            "recursos": {"cristales": 80, "minerales": 120}
+        },
+        {
+            "id": "Marvin",
+            "nombre": "Marvin",
+            "x": 55,
+            "y": 15,
+            "recursos": {"metales_raros": 40, "energía": 200}
+        },
+        {
+            "id": "Piolín",
+            "nombre": "Piolín",
+            "x": -25,
+            "y": 0,
+            "recursos": {"plata": 90, "cobre": 110}
+        },
+        {
+            "id": "Yayita",
+            "nombre": "Yayita",
+            "x": 15,
+            "y": 5,
+            "recursos": {"zinc": 70, "plomo": 85}
+        },
+        {
+            "id": "Correcaminos",
+            "nombre": "Correcaminos",
+            "x": 35,
+            "y": -10,
+            "recursos": {"titanio": 60, "aluminio": 95}
+        },
+        {
+            "id": "Popeye",
+            "nombre": "Popeye",
+            "x": 5,
+            "y": -20,
+            "recursos": {"espinacas": 300, "fuerza": 100}
+        }
+    ],
+    "aristas": [
+        {
+            "desde": "CR",
+            "hasta": "Silvestre",
+            "distancia": 10,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Silvestre",
+            "hasta": "Tazmania",
+            "distancia": 15,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Tazmania",
+            "hasta": "Coyote",
+            "distancia": 21,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Coyote",
+            "hasta": "Bunny",
+            "distancia": 33,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Bunny",
+            "hasta": "Marvin",
+            "distancia": 58,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "CR",
+            "hasta": "Piolín",
+            "distancia": 25,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Piolín",
+            "hasta": "Yayita",
+            "distancia": 30,
+            "es_dirigido": false,
+            "es_obstruido": true
+        },
+        {
+            "desde": "Silvestre",
+            "hasta": "Yayita",
+            "distancia": 16,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Tazmania",
+            "hasta": "Bunny",
+            "distancia": 22,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Yayita",
+            "hasta": "Bunny",
+            "distancia": 60,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Yayita",
+            "hasta": "Popeye",
+            "distancia": 5,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Popeye",
+            "hasta": "Correcaminos",
+            "distancia": 44,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Bunny",
+            "hasta": "Correcaminos",
+            "distancia": 2,
+            "es_dirigido": false,
+            "es_obstruido": false
+        }
+    ],
+    "es_dirigido": false
+}

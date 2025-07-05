@@ -95,7 +95,7 @@ func (sc *ServicioConexion) convertirADirigido() error {
 	return nil
 }
 
-// Obstruir o desobstruir una conexión especifica
+// Obstruir o desobstruir una conexión específica
 func (sc *ServicioConexion) ObstruirConexion(solicitud *ObstruirConexion) error {
 	// Verificar que las cuevas existan
 	if _, existe := sc.grafo.ObtenerCueva(solicitud.DesdeCuevaID); !existe {
@@ -106,19 +106,92 @@ func (sc *ServicioConexion) ObstruirConexion(solicitud *ObstruirConexion) error 
 	}
 
 	// Encontrar y modificar la arista
-	aristaEncontrada := false
+	aristasModificadas := 0
 	for _, arista := range sc.grafo.Aristas {
 		if arista.Desde == solicitud.DesdeCuevaID && arista.Hasta == solicitud.HastaCuevaID {
 			arista.EsObstruido = solicitud.EsObstruido
-			aristaEncontrada = true
+			aristasModificadas++
+		}
+		// Si es un grafo no dirigido, también obstruir la arista inversa
+		if !sc.grafo.EsDirigido && arista.Desde == solicitud.HastaCuevaID && arista.Hasta == solicitud.DesdeCuevaID {
+			arista.EsObstruido = solicitud.EsObstruido
+			aristasModificadas++
 		}
 	}
 
-	if !aristaEncontrada {
+	if aristasModificadas == 0 {
 		return fmt.Errorf("conexión desde %s hasta %s no existe", solicitud.DesdeCuevaID, solicitud.HastaCuevaID)
 	}
 
 	return nil
+}
+
+// Obstruir múltiples conexiones en una sola operación
+func (sc *ServicioConexion) ObstruirMultiplesConexiones(solicitudes []*ObstruirConexion) []error {
+	var errores []error
+
+	for i, solicitud := range solicitudes {
+		if err := sc.ObstruirConexion(solicitud); err != nil {
+			errores = append(errores, fmt.Errorf("error en conexión %d: %v", i+1, err))
+		}
+	}
+
+	return errores
+}
+
+// Obstruir todas las conexiones de una cueva específica
+func (sc *ServicioConexion) ObstruirTodasConexionesCueva(cuevaID string, esObstruido bool) error {
+	// Verificar que la cueva exista
+	if _, existe := sc.grafo.ObtenerCueva(cuevaID); !existe {
+		return fmt.Errorf("cueva %s no existe", cuevaID)
+	}
+
+	conexionesModificadas := 0
+	for _, arista := range sc.grafo.Aristas {
+		if arista.Desde == cuevaID || arista.Hasta == cuevaID {
+			arista.EsObstruido = esObstruido
+			conexionesModificadas++
+		}
+	}
+
+	if conexionesModificadas == 0 {
+		return fmt.Errorf("la cueva %s no tiene conexiones", cuevaID)
+	}
+
+	return nil
+}
+
+// Listar todas las conexiones obstruidas
+func (sc *ServicioConexion) ListarConexionesObstruidas() []map[string]interface{} {
+	var conexionesObstruidas []map[string]interface{}
+
+	for _, arista := range sc.grafo.Aristas {
+		if arista.EsObstruido {
+			conexion := map[string]interface{}{
+				"desde":       arista.Desde,
+				"hasta":       arista.Hasta,
+				"distancia":   arista.Distancia,
+				"es_dirigido": arista.EsDirigido,
+			}
+			conexionesObstruidas = append(conexionesObstruidas, conexion)
+		}
+	}
+
+	return conexionesObstruidas
+}
+
+// Desobstruir todas las conexiones del grafo
+func (sc *ServicioConexion) DesobstruirTodasConexiones() int {
+	conexionesDesobstruidas := 0
+
+	for _, arista := range sc.grafo.Aristas {
+		if arista.EsObstruido {
+			arista.EsObstruido = false
+			conexionesDesobstruidas++
+		}
+	}
+
+	return conexionesDesobstruidas
 }
 
 // Cambiar dirección de una conexión específica
