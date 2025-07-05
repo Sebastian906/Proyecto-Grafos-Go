@@ -30,8 +30,12 @@ func (m *MenuCueva) Mostrar() {
 		fmt.Println("8. Desobstruir todas las conexiones de una cueva")
 		fmt.Println("9. Listar conexiones obstruidas")
 		fmt.Println("10. Desobstruir todas las conexiones del grafo")
-		fmt.Println("11. Mostrar estadísticas de conexiones")
-		fmt.Println("12. Volver al menú principal")
+		fmt.Println("11. Cambiar sentido de una ruta específica")
+		fmt.Println("12. Cambiar sentido de múltiples rutas")
+		fmt.Println("13. Invertir todas las rutas salientes de una cueva")
+		fmt.Println("14. Invertir todas las rutas entrantes a una cueva")
+		fmt.Println("15. Mostrar estadísticas de conexiones")
+		fmt.Println("16. Volver al menú principal")
 
 		opcion := ObtenerInputInt("Seleccione una opción: ")
 
@@ -57,8 +61,16 @@ func (m *MenuCueva) Mostrar() {
 		case 10:
 			m.desobstruirTodasConexiones()
 		case 11:
-			m.mostrarEstadisticasConexiones()
+			m.cambiarSentidoRuta()
 		case 12:
+			m.cambiarSentidoMultiplesRutas()
+		case 13:
+			m.invertirRutasDesdeCueva()
+		case 14:
+			m.invertirRutasHaciaCueva()
+		case 15:
+			m.mostrarEstadisticasConexiones()
+		case 16:
 			return
 		default:
 			fmt.Println("Opción inválida")
@@ -256,5 +268,88 @@ func (m *MenuCueva) mostrarEstadisticasConexiones() {
 		fmt.Println("Dirigido")
 	} else {
 		fmt.Println("No dirigido")
+	}
+}
+
+// ===================== FUNCIONES DE CAMBIO DE SENTIDO DE RUTAS =====================
+
+func (m *MenuCueva) cambiarSentidoRuta() {
+	fmt.Println("\n=== Cambiar Sentido de Ruta ===")
+
+	desdeCuevaID := ObtenerInputString("ID de la cueva origen: ")
+	hastaCuevaID := ObtenerInputString("ID de la cueva destino: ")
+
+	solicitud := &service.CambiarSentidoRuta{
+		DesdeCuevaID: desdeCuevaID,
+		HastaCuevaID: hastaCuevaID,
+	}
+
+	err := m.conexionSvc.CambiarSentidoRuta(solicitud)
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		fmt.Printf("Sentido de ruta cambiado exitosamente: ahora va desde %s hasta %s\n",
+			hastaCuevaID, desdeCuevaID)
+	}
+}
+
+func (m *MenuCueva) cambiarSentidoMultiplesRutas() {
+	fmt.Println("\n=== Cambiar Sentido de Múltiples Rutas ===")
+
+	numRutas := ObtenerInputInt("¿Cuántas rutas desea cambiar?: ")
+	if numRutas <= 0 {
+		fmt.Println("Número inválido de rutas")
+		return
+	}
+
+	var solicitudes []*service.CambiarSentidoRuta
+
+	for i := 0; i < numRutas; i++ {
+		fmt.Printf("\n--- Ruta %d ---\n", i+1)
+		desdeCuevaID := ObtenerInputString("ID de la cueva origen: ")
+		hastaCuevaID := ObtenerInputString("ID de la cueva destino: ")
+
+		solicitud := &service.CambiarSentidoRuta{
+			DesdeCuevaID: desdeCuevaID,
+			HastaCuevaID: hastaCuevaID,
+		}
+		solicitudes = append(solicitudes, solicitud)
+	}
+
+	errores := m.conexionSvc.CambiarSentidoMultiplesRutas(solicitudes)
+
+	if len(errores) > 0 {
+		fmt.Printf("Se procesaron %d rutas con %d errores:\n", len(solicitudes), len(errores))
+		for _, err := range errores {
+			fmt.Printf("- %v\n", err)
+		}
+	} else {
+		fmt.Printf("Sentido de %d rutas cambiado exitosamente\n", len(solicitudes))
+	}
+}
+
+func (m *MenuCueva) invertirRutasDesdeCueva() {
+	fmt.Println("\n=== Invertir Rutas Salientes de una Cueva ===")
+
+	cuevaID := ObtenerInputString("ID de la cueva: ")
+
+	err := m.conexionSvc.InvertirRutasDesdeCueva(cuevaID)
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		fmt.Printf("Todas las rutas dirigidas salientes de la cueva %s han sido invertidas\n", cuevaID)
+	}
+}
+
+func (m *MenuCueva) invertirRutasHaciaCueva() {
+	fmt.Println("\n=== Invertir Rutas Entrantes a una Cueva ===")
+
+	cuevaID := ObtenerInputString("ID de la cueva: ")
+
+	err := m.conexionSvc.InvertirRutasHaciaCueva(cuevaID)
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		fmt.Printf("Todas las rutas dirigidas entrantes a la cueva %s han sido invertidas\n", cuevaID)
 	}
 }

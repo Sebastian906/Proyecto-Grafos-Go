@@ -36,6 +36,12 @@ type CambiarDireccion struct {
 	NuevaDireccion bool   `json:"nueva_direccion"` // true = dirigido, false = no dirigido
 }
 
+// Solicitud para cambiar el sentido de una ruta (invertir dirección)
+type CambiarSentidoRuta struct {
+	DesdeCuevaID string `json:"desde_cueva_id"`
+	HastaCuevaID string `json:"hasta_cueva_id"`
+}
+
 // Cambiar el grafo si es dirigido o no dirigido
 func (sc *ServicioConexion) CambiarTipoGrafo(solicitud *CambiarTipoGrafo) error {
 	// Si el grafo ya es del tipo solicitado, no hacer nada
@@ -223,6 +229,35 @@ func (sc *ServicioConexion) CambiarDireccionConexion(solicitud *CambiarDireccion
 	return nil
 }
 
+// Invertir dirección de una conexión (cambiar sentido de la ruta)
+func (sc *ServicioConexion) InvertirDireccionConexion(solicitud *CambiarSentidoRuta) error {
+	// Verificar que las cuevas existan
+	if _, existe := sc.grafo.ObtenerCueva(solicitud.DesdeCuevaID); !existe {
+		return fmt.Errorf("cueva %s no existe", solicitud.DesdeCuevaID)
+	}
+	if _, existe := sc.grafo.ObtenerCueva(solicitud.HastaCuevaID); !existe {
+		return fmt.Errorf("cueva %s no existe", solicitud.HastaCuevaID)
+	}
+
+	// Encontrar la arista
+	var aristaEncontrada *domain.Arista
+	for _, arista := range sc.grafo.Aristas {
+		if arista.Desde == solicitud.DesdeCuevaID && arista.Hasta == solicitud.HastaCuevaID {
+			aristaEncontrada = arista
+			break
+		}
+	}
+
+	if aristaEncontrada == nil {
+		return fmt.Errorf("conexión desde %s hasta %s no existe", solicitud.DesdeCuevaID, solicitud.HastaCuevaID)
+	}
+
+	// Cambiar el sentido de la arista
+	aristaEncontrada.Desde, aristaEncontrada.Hasta = aristaEncontrada.Hasta, aristaEncontrada.Desde
+
+	return nil
+}
+
 // Listar todas las conexiones en el grafo
 func (sc *ServicioConexion) ListarConexiones() []map[string]interface{} {
 	var conexiones []map[string]interface{}
@@ -320,4 +355,131 @@ func (sc *ServicioConexion) EstadisticasConexiones() map[string]interface{} {
 		"conexiones_no_dirigidas": conexionesNoDirigidas,
 		"tipo_grafo":              sc.grafo.EsDirigido,
 	}
+}
+
+// Cambiar el sentido de una ruta específica (invertir dirección)
+func (sc *ServicioConexion) CambiarSentidoRuta(solicitud *CambiarSentidoRuta) error {
+	// Verificar que las cuevas existan
+	if _, existe := sc.grafo.ObtenerCueva(solicitud.DesdeCuevaID); !existe {
+		return fmt.Errorf("cueva %s no existe", solicitud.DesdeCuevaID)
+	}
+	if _, existe := sc.grafo.ObtenerCueva(solicitud.HastaCuevaID); !existe {
+		return fmt.Errorf("cueva %s no existe", solicitud.HastaCuevaID)
+	}
+
+	// Buscar la arista original
+	var aristaEncontrada *domain.Arista
+	var indiceArista int = -1
+
+	for i, arista := range sc.grafo.Aristas {
+		if arista.Desde == solicitud.DesdeCuevaID && arista.Hasta == solicitud.HastaCuevaID {
+			aristaEncontrada = arista
+			indiceArista = i
+			break
+		}
+	}
+
+	if aristaEncontrada == nil {
+		return fmt.Errorf("conexión desde %s hasta %s no existe", solicitud.DesdeCuevaID, solicitud.HastaCuevaID)
+	}
+
+	// Verificar si la conexión es dirigida
+	if !aristaEncontrada.EsDirigido {
+		return fmt.Errorf("no se puede cambiar el sentido de una conexión no dirigida")
+	}
+
+	// Crear la nueva arista con dirección invertida
+	nuevaArista := domain.NuevaArista(
+		aristaEncontrada.Hasta,
+		aristaEncontrada.Desde,
+		aristaEncontrada.Distancia,
+		aristaEncontrada.EsDirigido,
+	)
+	nuevaArista.EsObstruido = aristaEncontrada.EsObstruido
+
+	// Reemplazar la arista original con la nueva arista invertida
+	sc.grafo.Aristas[indiceArista] = nuevaArista
+
+	return nil
+}
+
+// Cambiar el sentido de múltiples rutas en una sola operación
+func (sc *ServicioConexion) CambiarSentidoMultiplesRutas(solicitudes []*CambiarSentidoRuta) []error {
+	var errores []error
+
+	for i, solicitud := range solicitudes {
+		if err := sc.CambiarSentidoRuta(solicitud); err != nil {
+			errores = append(errores, fmt.Errorf("error en ruta %d: %v", i+1, err))
+		}
+	}
+
+	return errores
+}
+
+// Invertir todas las rutas dirigidas que salen de una cueva específica
+func (sc *ServicioConexion) InvertirRutasDesdeCueva(cuevaID string) error {
+	// Verificar que la cueva exista
+	if _, existe := sc.grafo.ObtenerCueva(cuevaID); !existe {
+		return fmt.Errorf("cueva %s no existe", cuevaID)
+	}
+
+	rutasInvertidas := 0
+
+	// Buscar todas las aristas que salen de la cueva especificada
+	for i, arista := range sc.grafo.Aristas {
+		if arista.Desde == cuevaID && arista.EsDirigido {
+			// Crear nueva arista invertida
+			nuevaArista := domain.NuevaArista(
+				arista.Hasta,
+				arista.Desde,
+				arista.Distancia,
+				arista.EsDirigido,
+			)
+			nuevaArista.EsObstruido = arista.EsObstruido
+
+			// Reemplazar la arista original
+			sc.grafo.Aristas[i] = nuevaArista
+			rutasInvertidas++
+		}
+	}
+
+	if rutasInvertidas == 0 {
+		return fmt.Errorf("la cueva %s no tiene rutas dirigidas salientes para invertir", cuevaID)
+	}
+
+	return nil
+}
+
+// Invertir todas las rutas dirigidas que llegan a una cueva específica
+func (sc *ServicioConexion) InvertirRutasHaciaCueva(cuevaID string) error {
+	// Verificar que la cueva exista
+	if _, existe := sc.grafo.ObtenerCueva(cuevaID); !existe {
+		return fmt.Errorf("cueva %s no existe", cuevaID)
+	}
+
+	rutasInvertidas := 0
+
+	// Buscar todas las aristas que llegan a la cueva especificada
+	for i, arista := range sc.grafo.Aristas {
+		if arista.Hasta == cuevaID && arista.EsDirigido {
+			// Crear nueva arista invertida
+			nuevaArista := domain.NuevaArista(
+				arista.Hasta,
+				arista.Desde,
+				arista.Distancia,
+				arista.EsDirigido,
+			)
+			nuevaArista.EsObstruido = arista.EsObstruido
+
+			// Reemplazar la arista original
+			sc.grafo.Aristas[i] = nuevaArista
+			rutasInvertidas++
+		}
+	}
+
+	if rutasInvertidas == 0 {
+		return fmt.Errorf("la cueva %s no tiene rutas dirigidas entrantes para invertir", cuevaID)
+	}
+
+	return nil
 }

@@ -1,0 +1,188 @@
+{
+    "es_dirigido": true,
+    "cuevas": [
+        {
+            "id": "Silvestre",
+            "nombre": "Cueva Silvestre",
+            "recursos": {
+                "oro": 120,
+                "carbon": 80
+            },
+            "x": -15,
+            "y": 5
+        },
+        {
+            "id": "Tazmania",
+            "nombre": "Cueva Tazmania",
+            "recursos": {
+                "hierro": 90,
+                "plata": 70
+            },
+            "x": 0,
+            "y": 10
+        },
+        {
+            "id": "Coyote",
+            "nombre": "Cueva Coyote",
+            "recursos": {
+                "diamantes": 40,
+                "esmeraldas": 30
+            },
+            "x": 15,
+            "y": 12
+        },
+        {
+            "id": "Bunny",
+            "nombre": "Cueva Bunny",
+            "recursos": {
+                "cobre": 110,
+                "zinc": 60
+            },
+            "x": 10,
+            "y": 5
+        },
+        {
+            "id": "Marvin",
+            "nombre": "Cueva Marvin",
+            "recursos": {
+                "rubies": 50,
+                "zafiros": 45
+            },
+            "x": 20,
+            "y": 0
+        },
+        {
+            "id": "Piolín",
+            "nombre": "Cueva Piolín",
+            "recursos": {
+                "platino": 25,
+                "paladio": 20
+            },
+            "x": -10,
+            "y": -5
+        },
+        {
+            "id": "Yayita",
+            "nombre": "Cueva Yayita",
+            "recursos": {
+                "titanio": 35,
+                "vanadio": 40
+            },
+            "x": 0,
+            "y": -5
+        },
+        {
+            "id": "Popeye",
+            "nombre": "Cueva Popeye",
+            "recursos": {
+                "cobalto": 55,
+                "niquel": 65
+            },
+            "x": 0,
+            "y": -15
+        },
+        {
+            "id": "Correcaminos",
+            "nombre": "Cueva Correcaminos",
+            "recursos": {
+                "tungsteno": 30,
+                "molibdeno": 25
+            },
+            "x": 15,
+            "y": -10
+        }
+    ],
+    "aristas": [
+        {
+            "desde": "Silvestre",
+            "hasta": "Tazmania",
+            "distancia": 15.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Silvestre",
+            "hasta": "Piolín",
+            "distancia": 10.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Tazmania",
+            "hasta": "Coyote",
+            "distancia": 21.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Tazmania",
+            "hasta": "Bunny",
+            "distancia": 16.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Coyote",
+            "hasta": "Bunny",
+            "distancia": 58.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Coyote",
+            "hasta": "Marvin",
+            "distancia": 33.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Bunny",
+            "hasta": "Marvin",
+            "distancia": 2.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Bunny",
+            "hasta": "Yayita",
+            "distancia": 22.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Bunny",
+            "hasta": "Correcaminos",
+            "distancia": 60.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Marvin",
+            "hasta": "Correcaminos",
+            "distancia": 44.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Piolín",
+            "hasta": "Yayita",
+            "distancia": 25.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Yayita",
+            "hasta": "Popeye",
+            "distancia": 30.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        },
+        {
+            "desde": "Popeye",
+            "hasta": "Correcaminos",
+            "distancia": 5.0,
+            "es_dirigido": true,
+            "es_obstruido": false
+        }
+    ]
+}
