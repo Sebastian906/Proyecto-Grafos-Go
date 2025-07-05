@@ -263,23 +263,23 @@ func (sc *ServicioCueva) CuevasEstadisticas(cuevaID string) (map[string]interfac
 
 	estadistica := map[string]interface{}{
 		"cueva_id": cuevaID,
-		"nombre":    cueva.Nombre,
+		"nombre":   cueva.Nombre,
 		"posicion": map[string]float64{
 			"x": cueva.X,
 			"y": cueva.Y,
 		},
 		"conexiones": map[string]interface{}{
 			"cuenta_proximos":    len(proximasAristas),
-			"cuenta_salientes":    len(aristasSalientes),
+			"cuenta_salientes":   len(aristasSalientes),
 			"cuenta_total":       len(proximasAristas) + len(aristasSalientes),
-			"proxima_distancia": distanciaTotalC,
+			"proxima_distancia":  distanciaTotalC,
 			"saliente_distancia": distanciaTotalS,
 			"distancia_total":    distanciaTotalC + distanciaTotalS,
 		},
 		"recursos": map[string]interface{}{
 			"tipos":          len(cueva.Recursos),
 			"cantidad_total": totalRecursos,
-			"detalles":        cueva.Recursos,
+			"detalles":       cueva.Recursos,
 		},
 	}
 

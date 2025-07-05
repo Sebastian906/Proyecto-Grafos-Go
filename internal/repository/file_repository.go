@@ -264,23 +264,23 @@ func (ra *RepositorioArchivo) GuardarJSON(grafo *domain.Grafo, archivo string) e
 
 // guardar el grafo en un archivo XML
 func (ra *RepositorioArchivo) GuardarXML(grafo *domain.Grafo, archivo string) error {
-    dirArchivo := filepath.Join(ra.dataDir, archivo)
-    
-    dataGrafo := ra.extraerDatosGrafo(grafo)
-    
-    data, err := xml.MarshalIndent(dataGrafo, "", "  ")
-    if err != nil {
-        return fmt.Errorf("error ordenando el XML: %v", err)
-    }
-    
-    // Agregar header XML
-    xmlData := []byte(xml.Header + string(data))
-    
-    if err := os.WriteFile(dirArchivo, xmlData, 0644); err != nil {
-        return fmt.Errorf("error al escribir el archivo XML: %v", err)
-    }
-    
-    return nil
+	dirArchivo := filepath.Join(ra.dataDir, archivo)
+
+	dataGrafo := ra.extraerDatosGrafo(grafo)
+
+	data, err := xml.MarshalIndent(dataGrafo, "", "  ")
+	if err != nil {
+		return fmt.Errorf("error ordenando el XML: %v", err)
+	}
+
+	// Agregar header XML
+	xmlData := []byte(xml.Header + string(data))
+
+	if err := os.WriteFile(dirArchivo, xmlData, 0644); err != nil {
+		return fmt.Errorf("error al escribir el archivo XML: %v", err)
+	}
+
+	return nil
 }
 
 // extraer los datos del grafo para serialización
@@ -304,20 +304,20 @@ func (ra *RepositorioArchivo) extraerDatosGrafo(grafo *domain.Grafo) *DataGrafo 
 
 // listar los archivos disponibles en el directorio de datos
 func (ra *RepositorioArchivo) ListarArchivos() ([]string, error) {
-    archivos, err := os.ReadDir(ra.dataDir)
-    if err != nil {
-        return nil, fmt.Errorf("error reading data directory: %v", err)
-    }
-    
-    var nArchivos []string
-    for _, archivo := range archivos {
-        if !archivo.IsDir() {
-            ext := filepath.Ext(archivo.Name())
-            if ext == ".json" || ext == ".xml" || ext == ".txt" {
-                nArchivos = append(nArchivos, archivo.Name())
-            }
-        }
-    }
-    
-    return nArchivos, nil
+	archivos, err := os.ReadDir(ra.dataDir)
+	if err != nil {
+		return nil, fmt.Errorf("error reading data directory: %v", err)
+	}
+
+	var nArchivos []string
+	for _, archivo := range archivos {
+		if !archivo.IsDir() {
+			ext := filepath.Ext(archivo.Name())
+			if ext == ".json" || ext == ".xml" || ext == ".txt" {
+				nArchivos = append(nArchivos, archivo.Name())
+			}
+		}
+	}
+
+	return nArchivos, nil
 }
