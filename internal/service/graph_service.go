@@ -3,6 +3,7 @@ package service
 import (
 	"proyecto-grafos-go/internal/domain"
 	"proyecto-grafos-go/internal/repository"
+	"strings"
 )
 
 type ServicioGrafo struct {
@@ -16,6 +17,24 @@ func NuevoServicioGrafo(grafo *domain.Grafo, repositorio *repository.Repositorio
 
 // 1a: Cargar grafo desde archivo
 func (sg *ServicioGrafo) CargarGrafo(archivo string) error {
+	// Detectar tipo de archivo por extensión
+	if strings.HasSuffix(strings.ToLower(archivo), ".xml") {
+		grafo, err := sg.repositorio.CargarXML(archivo)
+		if err != nil {
+			return err
+		}
+		*sg.grafo = *grafo
+		return nil
+	} else if strings.HasSuffix(strings.ToLower(archivo), ".txt") {
+		grafo, err := sg.repositorio.CargarTXT(archivo)
+		if err != nil {
+			return err
+		}
+		*sg.grafo = *grafo
+		return nil
+	}
+
+	// Por defecto, cargar como JSON
 	grafo, err := sg.repositorio.CargarJSON(archivo)
 	if err != nil {
 		return err
