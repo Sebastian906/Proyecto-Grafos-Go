@@ -25,7 +25,7 @@ func TestRequirement2a(t *testing.T) {
 	if err := grafoSvc.CargarGrafo("caves_with_obstacles.json"); err != nil {
 		t.Fatalf("Error cargando archivo: %v", err)
 	}
-	fmt.Println("✓ Grafo cargado exitosamente")
+	fmt.Println("Grafo cargado exitosamente")
 
 	// Mostrar estadísticas iniciales
 	fmt.Println("\n2. Estadísticas iniciales:")
@@ -62,7 +62,7 @@ func TestRequirement2a(t *testing.T) {
 	if err := conexionSvc.ObstruirConexion(solicitud); err != nil {
 		t.Errorf("Error obstruyendo conexión: %v", err)
 	} else {
-		fmt.Println("   ✓ Conexión obstruida exitosamente")
+		fmt.Println("   Conexión obstruida exitosamente")
 	}
 
 	// Verificar que la obstrucción funcionó
@@ -92,7 +92,7 @@ func TestRequirement2a(t *testing.T) {
 
 	errores := conexionSvc.ObstruirMultiplesConexiones(solicitudesMultiples)
 	if len(errores) == 0 {
-		fmt.Println("   ✓ Todas las conexiones múltiples fueron obstruidas")
+		fmt.Println("   Todas las conexiones múltiples fueron obstruidas")
 	} else {
 		t.Errorf("Se encontraron %d errores en obstrucción múltiple:", len(errores))
 		for _, err := range errores {
@@ -111,7 +111,7 @@ func TestRequirement2a(t *testing.T) {
 	if err := conexionSvc.ObstruirConexion(solicitudDesobstruir); err != nil {
 		t.Errorf("Error desobstruyendo conexión: %v", err)
 	} else {
-		fmt.Println("   ✓ Conexión desobstruida exitosamente")
+		fmt.Println("   Conexión desobstruida exitosamente")
 	}
 
 	// Estadísticas finales
@@ -128,11 +128,11 @@ func TestRequirement2a(t *testing.T) {
 	}
 
 	fmt.Println("\n=== Prueba del Requisito 2a COMPLETADA ===")
-	fmt.Println("✓ Se puede obstruir conexiones individuales")
-	fmt.Println("✓ Se puede obstruir múltiples conexiones")
-	fmt.Println("✓ Se puede desobstruir conexiones")
-	fmt.Println("✓ Se pueden ver estadísticas de obstrucción")
-	fmt.Println("✓ Se pueden listar conexiones obstruidas")
+	fmt.Println("Se puede obstruir conexiones individuales")
+	fmt.Println("Se puede obstruir múltiples conexiones")
+	fmt.Println("Se puede desobstruir conexiones")
+	fmt.Println("Se pueden ver estadísticas de obstrucción")
+	fmt.Println("Se pueden listar conexiones obstruidas")
 }
 
 // BenchmarkObstruccionConexiones benchmarks para medir el rendimiento

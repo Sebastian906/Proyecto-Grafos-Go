@@ -24,11 +24,17 @@ func NuevaCueva(id, nombre string) *Cueva {
 
 // Función de agregar un recurso a la cueva
 func (c *Cueva) AgregarRecurso(recurso string, cantidad int) {
+	if c.Recursos == nil {
+		c.Recursos = make(map[string]int)
+	}
 	c.Recursos[recurso] = cantidad
 }
 
 // Función de obtener cantidad de un recurso específico
 func (c *Cueva) ObtenerRecurso(recurso string) int {
+	if c.Recursos == nil {
+		return 0
+	}
 	return c.Recursos[recurso]
 }
 

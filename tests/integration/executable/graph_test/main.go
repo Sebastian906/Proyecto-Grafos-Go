@@ -12,7 +12,7 @@ func main() {
 
 	// Inicializar repositorio y grafo
 	grafo := domain.NuevoGrafo(true)
-	repo := repository.NuevoRepositorio("data/")
+	repo := repository.NuevoRepositorio("../../../../data/")
 
 	// Cargar el archivo
 	fmt.Println("\n1. Cargando archivo caves_directed_example.json...")
@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 	grafo = grafoNuevo
-	fmt.Println("✅ Archivo cargado exitosamente!")
+	fmt.Println("Archivo cargado exitosamente!")
 
 	// Mostrar información básica del grafo
 	fmt.Printf("\n2. Información del grafo:")
@@ -63,9 +63,9 @@ func main() {
 
 	err = conexionSvc.CambiarSentidoRuta(solicitud)
 	if err != nil {
-		fmt.Printf("   ❌ Error: %v\n", err)
+		fmt.Printf("   Error: %v\n", err)
 	} else {
-		fmt.Println("   ✅ Cambio exitoso!")
+		fmt.Println("   Cambio exitoso!")
 
 		// Mostrar conexiones después del cambio
 		fmt.Println("\n6. Conexiones después del cambio:")
@@ -73,7 +73,7 @@ func main() {
 		for i, conn := range conexionesNuevas {
 			prefix := "   "
 			if conn["desde"] == "Tasmania" && conn["hasta"] == "Silvestre" {
-				prefix = "   ➤ "
+				prefix = "   > "
 			}
 			fmt.Printf("%s%d. %s → %s (distancia: %.0f)\n",
 				prefix, i+1, conn["desde"], conn["hasta"], conn["distancia"])
@@ -84,9 +84,9 @@ func main() {
 	fmt.Println("\n7. Probando inversión de rutas salientes de Bunny...")
 	err = conexionSvc.InvertirRutasDesdeCueva("Bunny")
 	if err != nil {
-		fmt.Printf("   ❌ Error: %v\n", err)
+		fmt.Printf("   Error: %v\n", err)
 	} else {
-		fmt.Println("   ✅ Inversión exitosa!")
+		fmt.Println("   Inversión exitosa!")
 		fmt.Println("   Las rutas desde Bunny ahora van hacia Bunny")
 	}
 

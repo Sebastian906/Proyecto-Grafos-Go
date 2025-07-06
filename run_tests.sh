@@ -17,9 +17,9 @@ echo "Ejecutando prueba de obstrucción de caminos..."
 echo "1. Compilando proyecto..."
 go build ./cmd/main.go
 if [ $? -eq 0 ]; then
-    echo "✓ Compilación exitosa"
+    echo "Compilación exitosa"
 else
-    echo "✗ Error en compilación"
+    echo "Error en compilación"
     exit 1
 fi
 
