@@ -4,17 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"proyecto-grafos-go/internal/service"
+	"strings"
 )
 
 // Controlador para operaciones de conexiones
 type ControladorConexion struct {
-	servicioConexion *service.ServicioConexion
+	servicioConexion   *service.ServicioConexion
+	servicioValidacion *service.ServicioValidacion
 }
 
 // Nuevo controlador de conexiones
-func NuevoControladorConexion(servicioConexion *service.ServicioConexion) *ControladorConexion {
+func NuevoControladorConexion(servicioConexion *service.ServicioConexion, servicioValidacion *service.ServicioValidacion) *ControladorConexion {
 	return &ControladorConexion{
-		servicioConexion: servicioConexion,
+		servicioConexion:   servicioConexion,
+		servicioValidacion: servicioValidacion,
 	}
 }
 
@@ -167,4 +170,94 @@ func (cc *ControladorConexion) ManejarEliminarConexion(desdeCuevaID, hastaCuevaI
 func (cc *ControladorConexion) ManejarDesobstruirTodasConexiones() (string, error) {
 	conexionesDesobstruidas := cc.servicioConexion.DesobstruirTodasConexiones()
 	return fmt.Sprintf("%d conexiones desobstruidas exitosamente", conexionesDesobstruidas), nil
+}
+
+// ManejarDetectarCuevasInaccesibles detecta y reporta cuevas inaccesibles tras cambios
+func (cc *ControladorConexion) ManejarDetectarCuevasInaccesibles() (string, error) {
+	resultado := cc.servicioValidacion.DetectarCuevasInaccesiblesTrasChanged()
+
+	var reporte strings.Builder
+	reporte.WriteString("=== ANALISIS DE ACCESIBILIDAD ===\n")
+	reporte.WriteString(fmt.Sprintf("Total de cuevas: %d\n", resultado.TotalCuevas))
+	reporte.WriteString(fmt.Sprintf("Cuevas accesibles: %d\n", resultado.CuevasAccesibles))
+	reporte.WriteString(fmt.Sprintf("Cuevas inaccesibles: %d\n", len(resultado.CuevasInaccesibles)))
+
+	if len(resultado.CuevasInaccesibles) > 0 {
+		reporte.WriteString("\nCUEVAS INACCESIBLES:\n")
+		for i, cueva := range resultado.CuevasInaccesibles {
+			reporte.WriteString(fmt.Sprintf("%d. %s\n", i+1, cueva))
+		}
+	}
+
+	reporte.WriteString("\nSOLUCIONES PROPUESTAS:\n")
+	for _, solucion := range resultado.Soluciones {
+		reporte.WriteString(solucion + "\n")
+	}
+
+	return reporte.String(), nil
+}
+
+// ManejarAnalizarAccesibilidadDesde analiza accesibilidad desde una cueva específica
+func (cc *ControladorConexion) ManejarAnalizarAccesibilidadDesde(cuevaInicio string) (string, error) {
+	resultado := cc.servicioValidacion.AnalizarAccesibilidad(cuevaInicio)
+
+	var reporte strings.Builder
+	reporte.WriteString(fmt.Sprintf("=== ANALISIS DE ACCESIBILIDAD DESDE '%s' ===\n", cuevaInicio))
+	reporte.WriteString(fmt.Sprintf("Total de cuevas: %d\n", resultado.TotalCuevas))
+	reporte.WriteString(fmt.Sprintf("Cuevas accesibles: %d\n", resultado.CuevasAccesibles))
+	reporte.WriteString(fmt.Sprintf("Cuevas inaccesibles: %d\n", len(resultado.CuevasInaccesibles)))
+
+	if len(resultado.CuevasInaccesibles) > 0 {
+		reporte.WriteString("\nCUEVAS INACCESIBLES:\n")
+		for i, cueva := range resultado.CuevasInaccesibles {
+			reporte.WriteString(fmt.Sprintf("%d. %s\n", i+1, cueva))
+		}
+	}
+
+	reporte.WriteString("\nSOLUCIONES PROPUESTAS:\n")
+	for _, solucion := range resultado.Soluciones {
+		reporte.WriteString(solucion + "\n")
+	}
+
+	return reporte.String(), nil
+}
+
+// ManejarCambiarDireccionConConAnalisis cambia dirección y analiza impacto en accesibilidad
+func (cc *ControladorConexion) ManejarCambiarDireccionConConAnalisis(datos []byte) (string, error) {
+	var solicitud service.CambiarDireccion
+	if err := json.Unmarshal(datos, &solicitud); err != nil {
+		return "", fmt.Errorf("error al parsear datos: %v", err)
+	}
+
+	// Realizar el cambio
+	if err := cc.servicioConexion.CambiarDireccionConexion(&solicitud); err != nil {
+		return "", err
+	}
+
+	tipo := "no dirigida"
+	if solicitud.NuevaDireccion {
+		tipo = "dirigida"
+	}
+
+	// Analizar impacto en accesibilidad
+	resultado := cc.servicioValidacion.DetectarCuevasInaccesiblesTrasChanged()
+
+	var reporte strings.Builder
+	reporte.WriteString(fmt.Sprintf("Conexion desde %s hasta %s cambiada a %s exitosamente\n\n",
+		solicitud.DesdeCuevaID, solicitud.HastaCuevaID, tipo))
+
+	if len(resultado.CuevasInaccesibles) > 0 {
+		reporte.WriteString("ATENCION: El cambio ha resultado en cuevas inaccesibles:\n")
+		for _, cueva := range resultado.CuevasInaccesibles {
+			reporte.WriteString(fmt.Sprintf("- %s\n", cueva))
+		}
+		reporte.WriteString("\nSOLUCIONES RECOMENDADAS:\n")
+		for _, solucion := range resultado.Soluciones {
+			reporte.WriteString(solucion + "\n")
+		}
+	} else {
+		reporte.WriteString("Excelente: Todas las cuevas siguen siendo accesibles tras el cambio.")
+	}
+
+	return reporte.String(), nil
 }

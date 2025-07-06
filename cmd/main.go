@@ -32,12 +32,18 @@ func main() {
 	simulationHandler := handler.NuevoSimulationHandler(truckSvc, traversalSvc, grafoSvc)
 	traversalHandler := handler.NuevoTraversalHandler(traversalSvc, grafoSvc)
 
-	// Cargar datos de ejemplo si existe
-	if err := grafoSvc.CargarGrafo("caves_example.json"); err != nil {
-		fmt.Printf("INFO: No se pudo cargar archivo de ejemplo: %s\n", err.Error())
-		fmt.Println("NOTA: Puede crear cuevas manualmente desde el menú")
+	// Cargar datos de ejemplo si existe (usar el grafo complejo con 9 cuevas)
+	if err := grafoSvc.CargarGrafo("caves_directed_example.json"); err != nil {
+		// Si no existe el archivo dirigido, intentar con el simple
+		if err := grafoSvc.CargarGrafo("caves_example.json"); err != nil {
+			fmt.Printf("INFO: No se pudo cargar archivo de ejemplo: %s\n", err.Error())
+			fmt.Println("NOTA: Puede crear cuevas manualmente desde el menu")
+		} else {
+			fmt.Println("EXITO: Datos de ejemplo basicos cargados exitosamente (3 cuevas)")
+		}
 	} else {
-		fmt.Println("EXITO: Datos de ejemplo cargados exitosamente")
+		fmt.Println("EXITO: Datos de ejemplo completos cargados exitosamente (9 cuevas)")
+		fmt.Println("INFO: Grafo dirigido cargado - ideal para probar deteccion de cuevas inaccesibles")
 	}
 
 	// Crear menús actualizados
@@ -89,6 +95,11 @@ func mostrarMenuPrincipalMejorado(mainMenu *cli.MainMenu, simulationHandler *han
 
 // mostrarMenuAnalisisRecorridos muestra opciones para análisis de recorridos
 func mostrarMenuAnalisisRecorridos(traversalHandler *handler.TraversalHandler, grafo *domain.Grafo) {
+	// Crear servicios necesarios para detección de accesibilidad
+	validacionSvc := service.NuevoServicioValidacion(grafo)
+	conexionSvc := service.NuevoServicioConexion(grafo)
+	controladorConexion := handler.NuevoControladorConexion(conexionSvc, validacionSvc)
+
 	for {
 		fmt.Println("\nANALISIS DE RECORRIDOS")
 		fmt.Println(strings.Repeat("=", 40))
@@ -96,6 +107,8 @@ func mostrarMenuAnalisisRecorridos(traversalHandler *handler.TraversalHandler, g
 		fmt.Println("2. Ejecutar BFS")
 		fmt.Println("3. Comparar DFS vs BFS")
 		fmt.Println("4. Análisis de conectividad")
+		fmt.Println("5. Detectar cuevas inaccesibles (NUEVO)")
+		fmt.Println("6. Analizar accesibilidad desde cueva especifica (NUEVO)")
 		fmt.Println("0. Volver")
 
 		opcion := cli.LeerEntrada("Seleccione una opción: ")
@@ -109,6 +122,10 @@ func mostrarMenuAnalisisRecorridos(traversalHandler *handler.TraversalHandler, g
 			compararRecorridos(traversalHandler, grafo)
 		case "4":
 			analizarConectividad(traversalHandler, grafo)
+		case "5":
+			detectarCuevasInaccesibles(controladorConexion)
+		case "6":
+			analizarAccesibilidadEspecifica(controladorConexion)
 		case "0":
 			return
 		default:
@@ -246,4 +263,43 @@ func seleccionarCuevaOrigen(grafo *domain.Grafo) string {
 	}
 
 	return cuevaOrigen
+}
+
+// detectarCuevasInaccesibles utiliza el handler para detectar cuevas inaccesibles
+func detectarCuevasInaccesibles(controladorConexion *handler.ControladorConexion) {
+	fmt.Println("\nDETECCION DE CUEVAS INACCESIBLES")
+	fmt.Println(strings.Repeat("=", 45))
+	fmt.Println("Analizando accesibilidad del grafo actual...")
+
+	reporte, err := controladorConexion.ManejarDetectarCuevasInaccesibles()
+	if err != nil {
+		fmt.Printf("ERROR: %s\n", err.Error())
+		return
+	}
+
+	fmt.Println(reporte)
+	cli.LeerEntrada("\nPresione Enter para continuar...")
+}
+
+// analizarAccesibilidadEspecifica permite analizar accesibilidad desde una cueva específica
+func analizarAccesibilidadEspecifica(controladorConexion *handler.ControladorConexion) {
+	fmt.Println("\nANALISIS DE ACCESIBILIDAD ESPECIFICA")
+	fmt.Println(strings.Repeat("=", 45))
+
+	cuevaInicio := cli.LeerEntrada("Ingrese el ID de la cueva de inicio: ")
+	if cuevaInicio == "" {
+		fmt.Println("ERROR: ID de cueva no puede estar vacio")
+		return
+	}
+
+	fmt.Printf("Analizando accesibilidad desde '%s'...\n", cuevaInicio)
+
+	reporte, err := controladorConexion.ManejarAnalizarAccesibilidadDesde(cuevaInicio)
+	if err != nil {
+		fmt.Printf("ERROR: %s\n", err.Error())
+		return
+	}
+
+	fmt.Println(reporte)
+	cli.LeerEntrada("\nPresione Enter para continuar...")
 }

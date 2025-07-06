@@ -75,6 +75,6 @@ func (m *MainMenu) mostrarMenuCuevas() {
 }
 
 func (m *MainMenu) mostrarMenuAnalisis() {
-	menuAnalisis := NuevoMenuAnalisis(m.validacionSvc, m.grafoSvc)
+	menuAnalisis := NuevoMenuAnalisis(m.validacionSvc, m.grafoSvc, m.conexionSvc)
 	menuAnalisis.Mostrar()
 }
