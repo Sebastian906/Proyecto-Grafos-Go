@@ -44,10 +44,12 @@ func (m *MenuAnalisis) Mostrar() {
 		fmt.Println("=== ANÁLISIS DE OPTIMIZACIÓN (MST) ===")
 		fmt.Println("6. Ver estadísticas de la red")
 		fmt.Println("7. Validar conectividad para MST")
-		fmt.Println("8. Calcular Árbol de Expansión Mínimo (Req. 3a)")
-		fmt.Println("9. Exportar MST como nuevo grafo")
+		fmt.Println("8. Calcular Árbol de Expansión Mínimo General (Req. 3a)")
+		fmt.Println("9. MST desde cueva específica (Req. 3b)")
+		fmt.Println("10. Listar cuevas disponibles para MST")
+		fmt.Println("11. Exportar MST como nuevo grafo")
 		fmt.Println("")
-		fmt.Println("10. Salir")
+		fmt.Println("12. Salir")
 		fmt.Println(strings.Repeat("=", 50))
 
 		opcion := ObtenerInputInt("Seleccione una opción: ")
@@ -70,8 +72,12 @@ func (m *MenuAnalisis) Mostrar() {
 		case 8:
 			m.calcularMSTGeneral()
 		case 9:
-			m.exportarMST()
+			m.calcularMSTDesdeCueva()
 		case 10:
+			m.listarCuevasDisponibles()
+		case 11:
+			m.exportarMST()
+		case 12:
 			return
 		default:
 			fmt.Println("Opción inválida")
@@ -312,6 +318,115 @@ func (m *MenuAnalisis) mostrarExplicacionAlgoritmo() {
 	fmt.Println("   • Encuentra las conexiones mínimas para mantener toda la red unida")
 	fmt.Println("   • Minimiza la distancia total de construcción/mantenimiento")
 	fmt.Println("   • Identifica conexiones redundantes que pueden eliminarse")
+
+	fmt.Println(strings.Repeat("=", 70))
+}
+
+// Nuevos métodos para MST desde cueva específica (Requisito 3b)
+func (m *MenuAnalisis) calcularMSTDesdeCueva() {
+	grafo := m.grafoSvc.ObtenerGrafo()
+	if grafo == nil {
+		fmt.Println(" No hay grafo cargado en el sistema")
+		return
+	}
+
+	// Mostrar cuevas disponibles primero
+	fmt.Println("\n Cuevas disponibles en la red:")
+	for id, cueva := range grafo.Cuevas {
+		nombre := cueva.Nombre
+		if nombre == "" || nombre == id {
+			fmt.Printf("   • %s\n", id)
+		} else {
+			fmt.Printf("   • %s (%s)\n", id, nombre)
+		}
+	}
+
+	// Solicitar cueva origen
+	cuevaOrigen := ObtenerInputString("\nIngrese el ID de la cueva origen para el MST: ")
+	if cuevaOrigen == "" {
+		fmt.Println(" ID de cueva no puede estar vacío")
+		return
+	}
+
+	fmt.Printf("\n Calculando MST desde cueva '%s'...\n", cuevaOrigen)
+	fmt.Println("Este proceso encuentra el árbol de expansión mínimo")
+	fmt.Println("que conecta todas las cuevas alcanzables desde el punto de origen.")
+
+	resultado, err := m.analysisHandler.CalcularMSTDesdeCueva(grafo, cuevaOrigen)
+	if err != nil {
+		fmt.Printf(" Error: %v\n", err)
+		return
+	}
+
+	fmt.Println(resultado)
+
+	// Preguntar si desea ver información adicional
+	if SolicitarConfirmacion("¿Desea ver una explicación del algoritmo de Prim utilizado?") {
+		m.mostrarExplicacionPrim()
+	}
+
+	fmt.Println("\nPresione Enter para continuar...")
+	ObtenerInputString("")
+}
+
+func (m *MenuAnalisis) listarCuevasDisponibles() {
+	grafo := m.grafoSvc.ObtenerGrafo()
+	if grafo == nil {
+		fmt.Println(" No hay grafo cargado en el sistema")
+		return
+	}
+
+	fmt.Println("\n Analizando cuevas disponibles...")
+
+	resultado, err := m.analysisHandler.ListarCuevasDisponibles(grafo)
+	if err != nil {
+		fmt.Printf(" Error: %v\n", err)
+		return
+	}
+
+	fmt.Println(resultado)
+	fmt.Println("\nPresione Enter para continuar...")
+	ObtenerInputString("")
+}
+
+func (m *MenuAnalisis) mostrarExplicacionPrim() {
+	fmt.Println("\n" + strings.Repeat("=", 70))
+	fmt.Println(" EXPLICACIÓN: ALGORITMO DE PRIM PARA MST")
+	fmt.Println(strings.Repeat("=", 70))
+
+	fmt.Println(" Objetivo:")
+	fmt.Println("   El algoritmo de Prim construye un árbol de expansión mínimo")
+	fmt.Println("   creciendo desde un nodo específico, ideal para analizar")
+	fmt.Println("   accesibilidad desde un punto de origen dado.")
+
+	fmt.Println("\n Funcionamiento:")
+	fmt.Println("   1. Inicia desde la cueva origen especificada")
+	fmt.Println("   2. Mantiene un conjunto de nodos ya incluidos en el MST")
+	fmt.Println("   3. En cada paso, selecciona la arista de menor peso que:")
+	fmt.Println("      • Conecta un nodo ya incluido con uno no incluido")
+	fmt.Println("      • No está obstruida")
+	fmt.Println("   4. Continúa hasta que no puedan agregarse más nodos")
+
+	fmt.Println("\n Estructuras utilizadas:")
+	fmt.Println("   • Priority Queue (Min-Heap): Para seleccionar arista de menor peso")
+	fmt.Println("   • Conjunto de visitados: Para rastrear nodos incluidos")
+	fmt.Println("   • Mapa de adyacencia: Para encontrar conexiones válidas")
+
+	fmt.Println("\n Ventajas para análisis por origen:")
+	fmt.Println("   • Muestra exactamente qué cuevas son alcanzables desde el origen")
+	fmt.Println("   • Identifica componentes desconectados desde el punto de vista del origen")
+	fmt.Println("   • Proporciona las rutas mínimas desde el origen a cada destino")
+	fmt.Println("   • Útil para planificar expansiones desde ubicaciones específicas")
+
+	fmt.Println("\n Diferencias con Kruskal:")
+	fmt.Println("   • Prim: Crece desde un punto específico (mejor para análisis por origen)")
+	fmt.Println("   • Kruskal: Considera todas las aristas globalmente (mejor para MST total)")
+	fmt.Println("   • Ambos garantizan el mismo peso total en grafos completamente conectados")
+
+	fmt.Println("\n Aplicación en cuevas:")
+	fmt.Println("   • Planificación de rutas desde una base o entrada principal")
+	fmt.Println("   • Análisis de accesibilidad desde puntos estratégicos")
+	fmt.Println("   • Identificación de cuevas aisladas desde ubicaciones específicas")
 
 	fmt.Println(strings.Repeat("=", 70))
 }

@@ -1,0 +1,116 @@
+{
+  "cuevas": [
+    {
+      "id": "BASE",
+      "nombre": "Base Principal",
+      "recursos": {"agua": 10, "herramientas": 5, "comunicaciones": 1}
+    },
+    {
+      "id": "N1", 
+      "nombre": "Nodo Norte 1",
+      "recursos": {"cristales": 8}
+    },
+    {
+      "id": "N2",
+      "nombre": "Nodo Norte 2", 
+      "recursos": {"minerales": 12}
+    },
+    {
+      "id": "S1",
+      "nombre": "Nodo Sur 1",
+      "recursos": {"agua": 6, "comida": 15}
+    },
+    {
+      "id": "S2",
+      "nombre": "Nodo Sur 2",
+      "recursos": {"herramientas": 3}
+    },
+    {
+      "id": "E1",
+      "nombre": "Nodo Este 1",
+      "recursos": {"refugio": 1}
+    },
+    {
+      "id": "O1",
+      "nombre": "Nodo Oeste 1",
+      "recursos": {"comida": 8, "cristales": 4}
+    },
+    {
+      "id": "AISLADA",
+      "nombre": "Cueva Aislada",
+      "recursos": {"tesoro": 1}
+    }
+  ],
+  "aristas": [
+    {
+      "desde": "BASE",
+      "hasta": "N1",
+      "distancia": 10.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    },
+    {
+      "desde": "BASE",
+      "hasta": "S1", 
+      "distancia": 8.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    },
+    {
+      "desde": "BASE",
+      "hasta": "E1",
+      "distancia": 12.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    },
+    {
+      "desde": "BASE",
+      "hasta": "O1",
+      "distancia": 15.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    },
+    {
+      "desde": "N1",
+      "hasta": "N2",
+      "distancia": 6.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    },
+    {
+      "desde": "N1",
+      "hasta": "E1",
+      "distancia": 14.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    },
+    {
+      "desde": "S1",
+      "hasta": "S2",
+      "distancia": 5.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    },
+    {
+      "desde": "S1",
+      "hasta": "O1",
+      "distancia": 18.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    },
+    {
+      "desde": "E1",
+      "hasta": "S2",
+      "distancia": 11.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    },
+    {
+      "desde": "N2",
+      "hasta": "O1",
+      "distancia": 20.0,
+      "es_dirigido": false,
+      "es_obstruido": false
+    }
+  ]
+}
