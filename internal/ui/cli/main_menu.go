@@ -2,14 +2,16 @@ package cli
 
 import (
 	"fmt"
+	"proyecto-grafos-go/internal/handler"
 	"proyecto-grafos-go/internal/service"
 )
 
 type MainMenu struct {
-	grafoSvc      *service.ServicioGrafo
-	cuevaSvc      *service.ServicioCueva
-	validacionSvc *service.ServicioValidacion
-	conexionSvc   *service.ServicioConexion
+	grafoSvc        *service.ServicioGrafo
+	cuevaSvc        *service.ServicioCueva
+	validacionSvc   *service.ServicioValidacion
+	conexionSvc     *service.ServicioConexion
+	analysisHandler *handler.AnalysisHandler
 }
 
 func NuevoMainMenu(
@@ -17,12 +19,14 @@ func NuevoMainMenu(
 	cuevaSvc *service.ServicioCueva,
 	validacionSvc *service.ServicioValidacion,
 	conexionSvc *service.ServicioConexion,
+	analysisHandler *handler.AnalysisHandler,
 ) *MainMenu {
 	return &MainMenu{
-		grafoSvc:      grafoSvc,
-		cuevaSvc:      cuevaSvc,
-		validacionSvc: validacionSvc,
-		conexionSvc:   conexionSvc,
+		grafoSvc:        grafoSvc,
+		cuevaSvc:        cuevaSvc,
+		validacionSvc:   validacionSvc,
+		conexionSvc:     conexionSvc,
+		analysisHandler: analysisHandler,
 	}
 }
 
@@ -75,6 +79,11 @@ func (m *MainMenu) mostrarMenuCuevas() {
 }
 
 func (m *MainMenu) mostrarMenuAnalisis() {
-	menuAnalisis := NuevoMenuAnalisis(m.validacionSvc, m.grafoSvc, m.conexionSvc)
+	menuAnalisis := NuevoMenuAnalisis(m.validacionSvc, m.grafoSvc, m.conexionSvc, m.analysisHandler)
 	menuAnalisis.Mostrar()
+}
+
+// MostrarMenuAnalisis expone el menú de análisis públicamente
+func (m *MainMenu) MostrarMenuAnalisis() {
+	m.mostrarMenuAnalisis()
 }

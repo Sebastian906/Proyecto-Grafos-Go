@@ -28,9 +28,13 @@ func main() {
 	traversalSvc := service.NuevoTraversalService(grafoSvc)
 	truckSvc := service.NuevoTruckService(traversalSvc, grafoSvc)
 
+	// Servicios para MST (Requisito 3a)
+	mstSvc := service.NuevoMSTService(grafoSvc)
+
 	// Controladores (handlers)
 	simulationHandler := handler.NuevoSimulationHandler(truckSvc, traversalSvc, grafoSvc)
 	traversalHandler := handler.NuevoTraversalHandler(traversalSvc, grafoSvc)
+	analysisHandler := handler.NuevoAnalysisHandler(mstSvc)
 
 	// Cargar datos de ejemplo si existe (usar el grafo complejo con 9 cuevas)
 	if err := grafoSvc.CargarGrafo("caves_directed_example.json"); err != nil {
@@ -47,7 +51,7 @@ func main() {
 	}
 
 	// Crear menús actualizados
-	mainMenu := cli.NuevoMainMenu(grafoSvc, cuevaSvc, validacionSvc, conexionSvc)
+	mainMenu := cli.NuevoMainMenu(grafoSvc, cuevaSvc, validacionSvc, conexionSvc, analysisHandler)
 
 	// Agregar funcionalidad de simulación
 	fmt.Println("\nIniciando interfaz de usuario...")
@@ -65,7 +69,8 @@ func mostrarMenuPrincipalMejorado(mainMenu *cli.MainMenu, simulationHandler *han
 		fmt.Println("1. Gestión de Grafos y Cuevas")
 		fmt.Println("2. Simulación de Camiones (NUEVO)")
 		fmt.Println("3. Análisis de Recorridos (NUEVO)")
-		fmt.Println("4. Información del Sistema")
+		fmt.Println("4. Análisis MST - Árboles de Expansión Mínima (NUEVO)")
+		fmt.Println("5. Información del Sistema")
 		fmt.Println("0. Salir")
 		fmt.Println(strings.Repeat("=", 60))
 
@@ -83,6 +88,9 @@ func mostrarMenuPrincipalMejorado(mainMenu *cli.MainMenu, simulationHandler *han
 			// Menú de análisis de recorridos
 			mostrarMenuAnalisisRecorridos(traversalHandler, grafo)
 		case "4":
+			// Nuevo menú de análisis MST (Requisito 3a)
+			mainMenu.MostrarMenuAnalisis()
+		case "5":
 			mostrarInformacionSistema(grafo)
 		case "0":
 			fmt.Println("Gracias por usar el sistema! Hasta la vista.")

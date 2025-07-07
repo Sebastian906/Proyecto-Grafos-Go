@@ -50,3 +50,19 @@ func ObtenerInputBool(prompt string) bool {
 func LeerEntrada(prompt string) string {
 	return ObtenerInputString(prompt)
 }
+
+// Solicitar confirmación del usuario (S/N)
+func SolicitarConfirmacion(prompt string) bool {
+	for {
+		respuesta := ObtenerInputString(prompt + " (S/N): ")
+		respuesta = strings.ToLower(strings.TrimSpace(respuesta))
+
+		if respuesta == "s" || respuesta == "si" || respuesta == "sí" || respuesta == "y" || respuesta == "yes" {
+			return true
+		} else if respuesta == "n" || respuesta == "no" {
+			return false
+		}
+
+		fmt.Println("❌ Por favor, responda con 'S' para Sí o 'N' para No")
+	}
+}

@@ -1,0 +1,97 @@
+{
+    "cuevas": [
+        {
+            "id": "CR",
+            "nombre": "Centro de Recursos",
+            "x": 0,
+            "y": 0
+        },
+        {
+            "id": "C1",
+            "nombre": "Cueva Silvestre",
+            "x": 10,
+            "y": 15
+        },
+        {
+            "id": "C2",
+            "nombre": "Cueva Tazmania",
+            "x": -5,
+            "y": 20
+        },
+        {
+            "id": "C3",
+            "nombre": "Cueva Piolín",
+            "x": 25,
+            "y": 10
+        },
+        {
+            "id": "C4",
+            "nombre": "Cueva Tweety",
+            "x": -10,
+            "y": -15
+        },
+        {
+            "id": "C5",
+            "nombre": "Cueva Bugs",
+            "x": 15,
+            "y": -10
+        }
+    ],
+    "aristas": [
+        {
+            "desde": "CR",
+            "hasta": "C1",
+            "distancia": 18.03,
+            "es_dirigido": false
+        },
+        {
+            "desde": "CR",
+            "hasta": "C2",
+            "distancia": 20.62,
+            "es_dirigido": false
+        },
+        {
+            "desde": "CR",
+            "hasta": "C4",
+            "distancia": 18.03,
+            "es_dirigido": false
+        },
+        {
+            "desde": "C1",
+            "hasta": "C2",
+            "distancia": 15.81,
+            "es_dirigido": false
+        },
+        {
+            "desde": "C1",
+            "hasta": "C3",
+            "distancia": 15.81,
+            "es_dirigido": false
+        },
+        {
+            "desde": "C1",
+            "hasta": "C5",
+            "distancia": 25.50,
+            "es_dirigido": false
+        },
+        {
+            "desde": "C2",
+            "hasta": "C4",
+            "distancia": 35.36,
+            "es_dirigido": false
+        },
+        {
+            "desde": "C3",
+            "hasta": "C5",
+            "distancia": 22.36,
+            "es_dirigido": false
+        },
+        {
+            "desde": "C4",
+            "hasta": "C5",
+            "distancia": 25.50,
+            "es_dirigido": false
+        }
+    ],
+    "es_dirigido": false
+}

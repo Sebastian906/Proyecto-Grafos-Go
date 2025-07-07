@@ -61,3 +61,8 @@ func (sg *ServicioGrafo) ObtenerGradosVertices() map[string]map[string]int {
 	}
 	return grados
 }
+
+// ObtenerGrafo devuelve el grafo actual
+func (sg *ServicioGrafo) ObtenerGrafo() *domain.Grafo {
+	return sg.grafo
+}
