@@ -1,4 +1,4 @@
-package demos
+package main
 
 import (
 	"fmt"
@@ -7,7 +7,12 @@ import (
 	"proyecto-grafos-go/pkg/algorithms"
 )
 
-func DemoPrimSimple() {
+// main permite ejecutar este demo individualmente
+func main() {
+	demoPrimSimple()
+}
+
+func demoPrimSimple() {
 	fmt.Println("=== PRUEBA SIMPLE DEL ALGORITMO DE PRIM ===")
 
 	// Crear un grafo de prueba simple

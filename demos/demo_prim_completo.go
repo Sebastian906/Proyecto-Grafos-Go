@@ -1,4 +1,4 @@
-package demos
+package main
 
 import (
 	"fmt"
@@ -7,7 +7,12 @@ import (
 	"proyecto-grafos-go/pkg/algorithms"
 )
 
-func DemoPrimCompleto() {
+// main permite ejecutar este demo individualmente
+func main() {
+	demoPrimCompleto()
+}
+
+func demoPrimCompleto() {
 	fmt.Println("=== PRUEBA COMPLETA DEL ALGORITMO DE PRIM ===")
 	fmt.Println("Esta prueba verifica la funcionalidad del MST desde cueva específica")
 	fmt.Println()

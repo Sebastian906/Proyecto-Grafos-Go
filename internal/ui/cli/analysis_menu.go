@@ -46,10 +46,11 @@ func (m *MenuAnalisis) Mostrar() {
 		fmt.Println("7. Validar conectividad para MST")
 		fmt.Println("8. Calcular Árbol de Expansión Mínimo General (Req. 3a)")
 		fmt.Println("9. MST desde cueva específica (Req. 3b)")
-		fmt.Println("10. Listar cuevas disponibles para MST")
-		fmt.Println("11. Exportar MST como nuevo grafo")
+		fmt.Println("10. Rutas de acceso mínimas en orden de creación (Req. 3c)")
+		fmt.Println("11. Listar cuevas disponibles para MST")
+		fmt.Println("12. Exportar MST como nuevo grafo")
 		fmt.Println("")
-		fmt.Println("12. Salir")
+		fmt.Println("13. Salir")
 		fmt.Println(strings.Repeat("=", 50))
 
 		opcion := ObtenerInputInt("Seleccione una opción: ")
@@ -74,10 +75,12 @@ func (m *MenuAnalisis) Mostrar() {
 		case 9:
 			m.calcularMSTDesdeCueva()
 		case 10:
-			m.listarCuevasDisponibles()
+			m.calcularRutasAccesoMinimas()
 		case 11:
-			m.exportarMST()
+			m.listarCuevasDisponibles()
 		case 12:
+			m.exportarMST()
+		case 13:
 			return
 		default:
 			fmt.Println("Opción inválida")
@@ -427,6 +430,73 @@ func (m *MenuAnalisis) mostrarExplicacionPrim() {
 	fmt.Println("   • Planificación de rutas desde una base o entrada principal")
 	fmt.Println("   • Análisis de accesibilidad desde puntos estratégicos")
 	fmt.Println("   • Identificación de cuevas aisladas desde ubicaciones específicas")
+
+	fmt.Println(strings.Repeat("=", 70))
+}
+
+// calcularRutasAccesoMinimas maneja el requisito 3c: rutas de acceso mínimas en orden de creación
+func (m *MenuAnalisis) calcularRutasAccesoMinimas() {
+	grafo := m.grafoSvc.ObtenerGrafo()
+	if grafo == nil {
+		fmt.Println(" No hay grafo cargado en el sistema")
+		return
+	}
+
+	fmt.Println("\n Calculando rutas de acceso mínimas en orden de creación...")
+	fmt.Println("Este proceso muestra las rutas mínimas para acceder a cada cueva")
+	fmt.Println("siguiendo el orden en que fueron creadas en la red.")
+
+	resultado, err := m.analysisHandler.CalcularMSTEnOrdenCreacion(grafo)
+	if err != nil {
+		fmt.Printf(" Error: %v\n", err)
+		return
+	}
+
+	fmt.Println(resultado)
+
+	// Preguntar si desea ver información adicional
+	if SolicitarConfirmacion("¿Desea ver una explicación sobre las rutas de acceso mínimas?") {
+		m.mostrarExplicacionRutasAcceso()
+	}
+
+	fmt.Println("\nPresione Enter para continuar...")
+	ObtenerInputString("")
+}
+
+func (m *MenuAnalisis) mostrarExplicacionRutasAcceso() {
+	fmt.Println("\n" + strings.Repeat("=", 70))
+	fmt.Println(" EXPLICACIÓN: RUTAS DE ACCESO MÍNIMAS EN ORDEN DE CREACIÓN")
+	fmt.Println(strings.Repeat("=", 70))
+
+	fmt.Println(" Concepto:")
+	fmt.Println("   Las rutas de acceso mínimas muestran la forma más eficiente")
+	fmt.Println("   de llegar a cada cueva siguiendo el orden de creación,")
+	fmt.Println("   utilizando únicamente las conexiones del MST.")
+
+	fmt.Println("\n Metodología:")
+	fmt.Println("   1. Se determina el orden de creación de las cuevas")
+	fmt.Println("   2. Se calcula el Árbol de Expansión Mínimo (MST)")
+	fmt.Println("   3. Se toma la primera cueva como punto de partida")
+	fmt.Println("   4. Se encuentra la ruta más corta a cada cueva subsiguiente")
+	fmt.Println("   5. Se muestran las rutas en orden de creación")
+
+	fmt.Println("\n Ventajas:")
+	fmt.Println("   • Minimiza la distancia total de conexión")
+	fmt.Println("   • Respeta el orden histórico de construcción")
+	fmt.Println("   • Identifica la ruta más eficiente para acceder a cada cueva")
+	fmt.Println("   • Útil para planificar recorridos y mantenimiento")
+
+	fmt.Println("\n Aplicaciones prácticas:")
+	fmt.Println("   • Planificación de rutas de exploración")
+	fmt.Println("   • Optimización de recorridos de mantenimiento")
+	fmt.Println("   • Diseño de sistemas de transporte interno")
+	fmt.Println("   • Análisis de accesibilidad secuencial")
+
+	fmt.Println("\n Interpretación de resultados:")
+	fmt.Println("   • [PUNTO DE PARTIDA]: Primera cueva del recorrido")
+	fmt.Println("   • Ruta: Secuencia de cuevas para llegar al destino")
+	fmt.Println("   • Distancia: Longitud total del recorrido")
+	fmt.Println("   • [NO ACCESIBLE]: Cuevas aisladas del componente principal")
 
 	fmt.Println(strings.Repeat("=", 70))
 }

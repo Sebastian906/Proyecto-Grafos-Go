@@ -1,4 +1,4 @@
-package demos
+package main
 
 import (
 	"fmt"
@@ -9,8 +9,13 @@ import (
 	"strings"
 )
 
-// DemoMST ejecuta demostración del Árbol de Expansión Mínimo (MST)
-func DemoMST() {
+// main permite ejecutar este demo individualmente
+func main() {
+	demoMST()
+}
+
+// demoMST ejecuta demostración del Árbol de Expansión Mínimo (MST)
+func demoMST() {
 	fmt.Println(" DEMOSTRACIÓN: ÁRBOL DE EXPANSIÓN MÍNIMO (MST)")
 	fmt.Println(strings.Repeat("=", 60))
 	fmt.Println("Requisito 3a: Visualizar rutas mínimas para visitar toda la red")

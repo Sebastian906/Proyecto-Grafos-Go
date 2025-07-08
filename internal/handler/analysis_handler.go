@@ -292,6 +292,102 @@ func (ah *AnalysisHandler) CalcularMSTDesdeCueva(grafo *domain.Grafo, cuevaOrige
 	return output, nil
 }
 
+// CalcularMSTEnOrdenCreacion maneja el requisito 3c: visualizar MST en orden de creación
+func (ah *AnalysisHandler) CalcularMSTEnOrdenCreacion(grafo *domain.Grafo) (string, error) {
+	if grafo == nil {
+		return "", fmt.Errorf("no hay grafo cargado en el sistema")
+	}
+
+	// Validar prerrequisitos básicos
+	if err := ah.mstService.ValidarPrerequisitos(grafo); err != nil {
+		return fmt.Sprintf("Error: %v\n\nSugerencias:\n- Verifique que el grafo tenga al menos 2 cuevas\n- Asegúrese de que existan conexiones válidas\n- Revise que no todas las conexiones estén obstruidas", err), nil
+	}
+
+	// Obtener estadísticas de la red antes del cálculo
+	stats := ah.mstService.ObtenerEstadisticasRed(grafo)
+
+	// Calcular MST en orden de creación
+	resultado, err := ah.mstService.ObtenerMSTEnOrdenCreacion(grafo)
+	if err != nil {
+		return "", fmt.Errorf("error al calcular rutas de acceso mínimas: %v", err)
+	}
+
+	// Formatear resultado para visualización
+	output := ah.mstService.FormatearMSTOrdenCreacionParaVisualizacion(resultado)
+
+	// Agregar estadísticas adicionales
+	output += "\n=== ESTADÍSTICAS DE LA RED ===\n"
+	output += fmt.Sprintf("Total de cuevas: %v\n", stats["total_cuevas"])
+	output += fmt.Sprintf("Total de conexiones: %v\n", stats["total_aristas"])
+	output += fmt.Sprintf("Conexiones válidas: %v\n", stats["aristas_validas"])
+
+	if resultado.MST != nil {
+		output += "\n=== ANÁLISIS DE RUTAS DE ACCESO ===\n"
+
+		// Estadísticas de rutas
+		rutasAccesibles := 0
+		distanciaMaxima := 0.0
+		distanciaPromedio := 0.0
+		totalDistancia := 0.0
+
+		for _, ruta := range resultado.RutasAccesoMinimas {
+			if ruta.EsAccesible && ruta.OrdenCreacion > 1 {
+				rutasAccesibles++
+				totalDistancia += ruta.DistanciaTotal
+				if ruta.DistanciaTotal > distanciaMaxima {
+					distanciaMaxima = ruta.DistanciaTotal
+				}
+			}
+		}
+
+		if rutasAccesibles > 0 {
+			distanciaPromedio = totalDistancia / float64(rutasAccesibles)
+		}
+
+		output += fmt.Sprintf("Cuevas accesibles: %d de %d\n", rutasAccesibles+1, len(resultado.RutasAccesoMinimas))
+		output += fmt.Sprintf("Distancia máxima de acceso: %.2f\n", distanciaMaxima)
+		output += fmt.Sprintf("Distancia promedio de acceso: %.2f\n", distanciaPromedio)
+		output += fmt.Sprintf("Distancia total de acceso: %.2f\n", totalDistancia)
+
+		// Análisis de eficiencia
+		pesoOriginal := stats["peso_total_red"].(float64)
+		ahorro := pesoOriginal - resultado.MST.PesoTotal
+		porcentajeAhorro := (ahorro / pesoOriginal) * 100
+
+		output += "\n=== ANÁLISIS DE OPTIMIZACIÓN ===\n"
+		output += fmt.Sprintf("Peso total sin optimización: %.2f\n", pesoOriginal)
+		output += fmt.Sprintf("Peso total con rutas mínimas: %.2f\n", resultado.MST.PesoTotal)
+		output += fmt.Sprintf("Ahorro total: %.2f\n", ahorro)
+		output += fmt.Sprintf("Porcentaje de optimización: %.2f%%\n", porcentajeAhorro)
+
+		// Recomendaciones
+		output += "\n=== RECOMENDACIONES ===\n"
+		if resultado.EsConexo {
+			output += "• La red está completamente conectada\n"
+			output += "• Todas las cuevas son accesibles siguiendo las rutas mínimas\n"
+			output += "• Las rutas mostradas minimizan la distancia total de conexión\n"
+		} else {
+			output += "• ADVERTENCIA: La red no está completamente conectada\n"
+			output += "• Algunas cuevas no son accesibles desde el punto de partida\n"
+			output += "• Considere agregar conexiones para mejorar la accesibilidad\n"
+		}
+
+		if distanciaMaxima > distanciaPromedio*2 {
+			output += "• Considere ubicaciones intermedias para reducir distancias de acceso\n"
+		}
+
+		if porcentajeAhorro > 50 {
+			output += "• Excelente optimización: se logra un ahorro significativo\n"
+		} else if porcentajeAhorro > 25 {
+			output += "• Buena optimización: se logra un ahorro considerable\n"
+		} else {
+			output += "• Optimización limitada: la red ya es bastante eficiente\n"
+		}
+	}
+
+	return output, nil
+}
+
 // ListarCuevasDisponibles proporciona una lista de cuevas disponibles para usar como origen
 func (ah *AnalysisHandler) ListarCuevasDisponibles(grafo *domain.Grafo) (string, error) {
 	if grafo == nil {

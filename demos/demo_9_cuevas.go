@@ -1,4 +1,4 @@
-package demos
+package main
 
 import (
 	"fmt"
@@ -7,14 +7,18 @@ import (
 	"proyecto-grafos-go/internal/service"
 )
 
-// Demo9Cuevas ejecuta prueba rápida para verificar funcionalidad con datos de 9 cuevas
-func Demo9Cuevas() {
+func main() {
+	demo9Cuevas()
+}
+
+// demo9Cuevas ejecuta prueba rápida para verificar funcionalidad con datos de 9 cuevas
+func demo9Cuevas() {
 	fmt.Println("=== PRUEBA RAPIDA: DETECCION DE CUEVAS INACCESIBLES ===")
 	fmt.Println("")
 
 	// Inicializar sistema
 	grafo := domain.NuevoGrafo(false)
-	repo := repository.NuevoRepositorio("../data/")
+	repo := repository.NuevoRepositorio("data")
 	grafoSvc := service.NuevoServicioGrafo(grafo, repo)
 	validacionSvc := service.NuevoServicioValidacion(grafo)
 

@@ -40,6 +40,26 @@ type MSTDesdeCuevaResult struct {
 	RutasMinimas      map[string][]string       `json:"rutas_minimas"`
 }
 
+// MSTOrdenCreacionResult contiene el resultado del MST ordenado por creación de cuevas
+type MSTOrdenCreacionResult struct {
+	MST                   *algorithms.MST `json:"mst"`
+	OrdenCreacion         []string        `json:"orden_creacion"`
+	RutasAccesoMinimas    []RutaAcceso    `json:"rutas_acceso_minimas"`
+	EsConexo              bool            `json:"es_conexo"`
+	TotalCuevasConectadas int             `json:"total_cuevas_conectadas"`
+	Mensaje               string          `json:"mensaje"`
+	Detalles              []string        `json:"detalles"`
+}
+
+// RutaAcceso representa una ruta de acceso mínima para llegar a una cueva
+type RutaAcceso struct {
+	CuevaDestino   string   `json:"cueva_destino"`
+	Ruta           []string `json:"ruta"`
+	DistanciaTotal float64  `json:"distancia_total"`
+	EsAccesible    bool     `json:"es_accesible"`
+	OrdenCreacion  int      `json:"orden_creacion"`
+}
+
 // ObtenerMSTGeneral implementa el requisito 3a:
 // Obtiene el árbol de expansión mínimo general de toda la red
 func (ms *MSTService) ObtenerMSTGeneral(grafo *domain.Grafo) (*MSTResult, error) {
@@ -144,6 +164,61 @@ func (ms *MSTService) ObtenerMSTDesdeCueva(grafo *domain.Grafo, cuevaOrigen stri
 		Mensaje:           mensaje,
 		Detalles:          detalles,
 		RutasMinimas:      rutasMinimas,
+	}, nil
+}
+
+// ObtenerMSTEnOrdenCreacion implementa el requisito 3c:
+// Visualizar las rutas de acceso mínimas en el orden de creación de las cuevas
+func (ms *MSTService) ObtenerMSTEnOrdenCreacion(grafo *domain.Grafo) (*MSTOrdenCreacionResult, error) {
+	if grafo == nil {
+		return nil, fmt.Errorf("el grafo no puede ser nil")
+	}
+
+	// Validar prerequisitos
+	if err := ms.ValidarPrerequisitos(grafo); err != nil {
+		return &MSTOrdenCreacionResult{
+			MST:      nil,
+			EsConexo: false,
+			Mensaje:  fmt.Sprintf("Error en prerequisitos: %v", err),
+			Detalles: []string{"No se puede calcular MST debido a prerequisitos no cumplidos"},
+		}, nil
+	}
+
+	// Obtener el orden de creación de las cuevas (por ID)
+	ordenCreacion := ms.obtenerOrdenCreacionCuevas(grafo)
+
+	// Verificar conectividad
+	esConexo := algorithms.EsConexo(grafo)
+	if !esConexo {
+		return &MSTOrdenCreacionResult{
+			MST:           nil,
+			OrdenCreacion: ordenCreacion,
+			EsConexo:      false,
+			Mensaje:       "La red no está completamente conectada",
+			Detalles:      []string{"No es posible mostrar rutas de acceso para una red desconectada"},
+		}, nil
+	}
+
+	// Calcular MST usando Kruskal
+	mst, err := algorithms.Kruskal(grafo)
+	if err != nil {
+		return nil, fmt.Errorf("error al calcular MST: %v", err)
+	}
+
+	// Generar rutas de acceso mínimas para cada cueva en orden de creación
+	rutasAcceso := ms.generarRutasAccesoEnOrden(grafo, mst, ordenCreacion)
+
+	// Generar detalles del resultado
+	detalles := ms.generarDetallesMSTOrdenCreacion(mst, grafo, ordenCreacion, rutasAcceso)
+
+	return &MSTOrdenCreacionResult{
+		MST:                   mst,
+		OrdenCreacion:         ordenCreacion,
+		RutasAccesoMinimas:    rutasAcceso,
+		EsConexo:              true,
+		TotalCuevasConectadas: len(ordenCreacion),
+		Mensaje:               "Rutas de acceso mínimas calculadas exitosamente",
+		Detalles:              detalles,
 	}, nil
 }
 
@@ -413,4 +488,216 @@ func (ms *MSTService) FormatearResultadoMSTDesdeCuevaParaVisualizacion(resultado
 	}
 
 	return sb.String()
+}
+
+// FormatearMSTOrdenCreacionParaVisualizacion formatea el resultado para mostrar en CLI
+func (ms *MSTService) FormatearMSTOrdenCreacionParaVisualizacion(resultado *MSTOrdenCreacionResult) string {
+	var sb strings.Builder
+
+	sb.WriteString("=== RUTAS DE ACCESO MÍNIMAS EN ORDEN DE CREACIÓN ===\n\n")
+	sb.WriteString(fmt.Sprintf("Estado: %s\n", resultado.Mensaje))
+	sb.WriteString(fmt.Sprintf("Red conexa: %v\n", resultado.EsConexo))
+	sb.WriteString(fmt.Sprintf("Total de cuevas: %d\n", resultado.TotalCuevasConectadas))
+
+	if resultado.MST != nil {
+		sb.WriteString(fmt.Sprintf("Peso total del MST: %.2f\n", resultado.MST.PesoTotal))
+		sb.WriteString(fmt.Sprintf("Conexiones mínimas: %d\n", resultado.MST.NumAristas))
+	}
+
+	sb.WriteString("\n")
+
+	// Agregar detalles
+	for _, detalle := range resultado.Detalles {
+		sb.WriteString(detalle + "\n")
+	}
+
+	return sb.String()
+}
+
+// obtenerOrdenCreacionCuevas obtiene el orden de creación de las cuevas
+func (ms *MSTService) obtenerOrdenCreacionCuevas(grafo *domain.Grafo) []string {
+	var orden []string
+
+	// Ordenar por ID de cueva (asumiendo que el ID refleja el orden de creación)
+	for id := range grafo.Cuevas {
+		orden = append(orden, id)
+	}
+
+	// Ordenar alfabéticamente para mantener consistencia
+	for i := 0; i < len(orden)-1; i++ {
+		for j := i + 1; j < len(orden); j++ {
+			if orden[i] > orden[j] {
+				orden[i], orden[j] = orden[j], orden[i]
+			}
+		}
+	}
+
+	return orden
+}
+
+// generarRutasAccesoEnOrden genera las rutas de acceso mínimas para cada cueva
+func (ms *MSTService) generarRutasAccesoEnOrden(grafo *domain.Grafo, mst *algorithms.MST, ordenCreacion []string) []RutaAcceso {
+	var rutasAcceso []RutaAcceso
+
+	// Construir grafo MST para encontrar rutas
+	grafoMST := ms.construirGrafoMST(grafo, mst)
+
+	// Primera cueva es la raíz del árbol (punto de partida)
+	if len(ordenCreacion) == 0 {
+		return rutasAcceso
+	}
+
+	cuevaRaiz := ordenCreacion[0]
+
+	// Generar ruta para cada cueva en orden de creación
+	for i, cuevaID := range ordenCreacion {
+		if cuevaID == cuevaRaiz {
+			// La cueva raíz no necesita ruta de acceso
+			rutasAcceso = append(rutasAcceso, RutaAcceso{
+				CuevaDestino:   cuevaID,
+				Ruta:           []string{cuevaID},
+				DistanciaTotal: 0,
+				EsAccesible:    true,
+				OrdenCreacion:  i + 1,
+			})
+			continue
+		}
+
+		// Encontrar ruta más corta desde la raíz hasta esta cueva
+		ruta, distancia := ms.encontrarRutaEnMST(grafoMST, cuevaRaiz, cuevaID)
+
+		rutasAcceso = append(rutasAcceso, RutaAcceso{
+			CuevaDestino:   cuevaID,
+			Ruta:           ruta,
+			DistanciaTotal: distancia,
+			EsAccesible:    len(ruta) > 1,
+			OrdenCreacion:  i + 1,
+		})
+	}
+
+	return rutasAcceso
+}
+
+// construirGrafoMST construye un grafo que contiene solo las aristas del MST
+func (ms *MSTService) construirGrafoMST(grafoOriginal *domain.Grafo, mst *algorithms.MST) *domain.Grafo {
+	grafoMST := domain.NuevoGrafo(false) // MST siempre es no dirigido
+
+	// Agregar todas las cuevas
+	for id, cueva := range grafoOriginal.Cuevas {
+		grafoMST.Cuevas[id] = cueva
+	}
+
+	// Agregar solo las aristas del MST
+	for _, arista := range mst.Aristas {
+		grafoMST.Aristas = append(grafoMST.Aristas, &domain.Arista{
+			Desde:       arista.Desde,
+			Hasta:       arista.Hasta,
+			Distancia:   arista.Distancia,
+			EsDirigido:  false,
+			EsObstruido: false,
+		})
+	}
+
+	return grafoMST
+}
+
+// encontrarRutaEnMST encuentra la ruta más corta entre dos nodos en el MST
+func (ms *MSTService) encontrarRutaEnMST(grafoMST *domain.Grafo, origen, destino string) ([]string, float64) {
+	if origen == destino {
+		return []string{origen}, 0
+	}
+
+	// Usar BFS para encontrar la ruta en el árbol
+	visitados := make(map[string]bool)
+	padres := make(map[string]string)
+	distancias := make(map[string]float64)
+	cola := []string{origen}
+
+	visitados[origen] = true
+	distancias[origen] = 0
+
+	for len(cola) > 0 {
+		actual := cola[0]
+		cola = cola[1:]
+
+		if actual == destino {
+			// Reconstruir ruta
+			ruta := []string{}
+			distanciaTotal := distancias[destino]
+
+			for nodo := destino; nodo != origen; nodo = padres[nodo] {
+				ruta = append([]string{nodo}, ruta...)
+			}
+			ruta = append([]string{origen}, ruta...)
+
+			return ruta, distanciaTotal
+		}
+
+		// Explorar vecinos
+		for _, arista := range grafoMST.Aristas {
+			var vecino string
+			var distancia float64
+
+			if arista.Desde == actual {
+				vecino = arista.Hasta
+				distancia = arista.Distancia
+			} else if arista.Hasta == actual {
+				vecino = arista.Desde
+				distancia = arista.Distancia
+			} else {
+				continue
+			}
+
+			if !visitados[vecino] {
+				visitados[vecino] = true
+				padres[vecino] = actual
+				distancias[vecino] = distancias[actual] + distancia
+				cola = append(cola, vecino)
+			}
+		}
+	}
+
+	// No se encontró ruta
+	return []string{}, 0
+}
+
+// generarDetallesMSTOrdenCreacion genera información detallada del MST en orden de creación
+func (ms *MSTService) generarDetallesMSTOrdenCreacion(mst *algorithms.MST, grafo *domain.Grafo, ordenCreacion []string, rutasAcceso []RutaAcceso) []string {
+	var detalles []string
+
+	detalles = append(detalles, fmt.Sprintf("Red de cuevas: %d cuevas conectadas", len(grafo.Cuevas)))
+	detalles = append(detalles, fmt.Sprintf("Árbol de expansión mínimo: %d conexiones", mst.NumAristas))
+	detalles = append(detalles, fmt.Sprintf("Peso total del MST: %.2f", mst.PesoTotal))
+	detalles = append(detalles, "")
+
+	// Mostrar orden de creación
+	detalles = append(detalles, "Orden de creación de cuevas:")
+	for i, cuevaID := range ordenCreacion {
+		cueva := grafo.Cuevas[cuevaID]
+		nombre := cueva.Nombre
+		if nombre == "" || nombre == cuevaID {
+			detalles = append(detalles, fmt.Sprintf("  %d. %s", i+1, cuevaID))
+		} else {
+			detalles = append(detalles, fmt.Sprintf("  %d. %s (%s)", i+1, cuevaID, nombre))
+		}
+	}
+	detalles = append(detalles, "")
+
+	// Mostrar rutas de acceso mínimas
+	detalles = append(detalles, "Rutas de acceso mínimas (en orden de creación):")
+	for _, ruta := range rutasAcceso {
+		if ruta.OrdenCreacion == 1 {
+			detalles = append(detalles, fmt.Sprintf("  %d. %s: [PUNTO DE PARTIDA]",
+				ruta.OrdenCreacion, ruta.CuevaDestino))
+		} else if ruta.EsAccesible {
+			rutaStr := strings.Join(ruta.Ruta, " -> ")
+			detalles = append(detalles, fmt.Sprintf("  %d. %s: %s (distancia: %.2f)",
+				ruta.OrdenCreacion, ruta.CuevaDestino, rutaStr, ruta.DistanciaTotal))
+		} else {
+			detalles = append(detalles, fmt.Sprintf("  %d. %s: [NO ACCESIBLE]",
+				ruta.OrdenCreacion, ruta.CuevaDestino))
+		}
+	}
+
+	return detalles
 }
