@@ -283,12 +283,62 @@ func (ra *RepositorioArchivo) GuardarXML(grafo *domain.Grafo, archivo string) er
 	return nil
 }
 
-// extraer los datos del grafo para serialización
+// GuardarTXT guarda un grafo en formato TXT
+func (ra *RepositorioArchivo) GuardarTXT(grafo *domain.Grafo, archivo string) error {
+	dirArchivo := filepath.Join(ra.dataDir, archivo)
+
+	file, err := os.Create(dirArchivo)
+	if err != nil {
+		return fmt.Errorf("error creating TXT file: %v", err)
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	defer writer.Flush()
+
+	// Escribir encabezado del grafo
+	_, err = writer.WriteString(fmt.Sprintf("DIRIGIDO=%t\n", grafo.EsDirigido))
+	if err != nil {
+		return fmt.Errorf("error writing to TXT file: %v", err)
+	}
+
+	// Escribir cuevas
+	_, err = writer.WriteString("CUEVAS\n")
+	if err != nil {
+		return fmt.Errorf("error writing to TXT file: %v", err)
+	}
+
+	for _, cueva := range grafo.Cuevas {
+		linea := fmt.Sprintf("%s,%s,%.2f,%.2f\n", cueva.ID, cueva.Nombre, cueva.X, cueva.Y)
+		_, err = writer.WriteString(linea)
+		if err != nil {
+			return fmt.Errorf("error writing cave to TXT file: %v", err)
+		}
+	}
+
+	// Escribir aristas
+	_, err = writer.WriteString("CONEXIONES\n")
+	if err != nil {
+		return fmt.Errorf("error writing to TXT file: %v", err)
+	}
+
+	for _, arista := range grafo.Aristas {
+		linea := fmt.Sprintf("%s,%s,%.2f,%t,%t\n",
+			arista.Desde, arista.Hasta, arista.Distancia,
+			arista.EsDirigido, arista.EsObstruido)
+		_, err = writer.WriteString(linea)
+		if err != nil {
+			return fmt.Errorf("error writing edge to TXT file: %v", err)
+		}
+	}
+
+	return nil
+}
+
+// extraerDatosGrafo extrae los datos del grafo para serialización
 func (ra *RepositorioArchivo) extraerDatosGrafo(grafo *domain.Grafo) *DataGrafo {
 	dataGrafo := &DataGrafo{
 		EsDirigido: grafo.EsDirigido,
-		Cuevas:     make([]*domain.Cueva, 0),
-		Aristas:    make([]*domain.Arista, 0),
 	}
 
 	// Extraer cuevas
@@ -297,7 +347,7 @@ func (ra *RepositorioArchivo) extraerDatosGrafo(grafo *domain.Grafo) *DataGrafo 
 	}
 
 	// Extraer aristas
-	dataGrafo.Aristas = grafo.ObtenerAristas()
+	dataGrafo.Aristas = grafo.Aristas
 
 	return dataGrafo
 }

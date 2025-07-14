@@ -124,9 +124,9 @@ func (m *MenuCueva) listarCuevas() {
 
 	fmt.Printf("\n=== Lista de Cuevas (%d) ===\n", len(cuevas))
 	for i, id := range cuevas {
-		cueva, err := m.cuevaSvc.ObtenerCueva(id)
-		if err != nil {
-			fmt.Printf("%d. %s (Error: %v)\n", i+1, id, err)
+		cueva, existe := m.cuevaSvc.ObtenerCueva(id)
+		if !existe {
+			fmt.Printf("%d. %s (Error: cueva no encontrada)\n", i+1, id)
 		} else {
 			fmt.Printf("%d. %s - %s (%.2f, %.2f)\n", i+1, cueva.ID, cueva.Nombre, cueva.X, cueva.Y)
 		}

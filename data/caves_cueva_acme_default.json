@@ -1,0 +1,208 @@
+{
+    "cuevas": [
+        {
+            "id": "CENTRO",
+            "nombre": "Centro Recursos",
+            "descripcion": "Centro principal de recursos de la red",
+            "x": 50.0,
+            "y": 100.0,
+            "recursos": {
+                "agua": 100,
+                "comida": 100
+            }
+        },
+        {
+            "id": "SILVESTRE",
+            "nombre": "Silvestre",
+            "descripcion": "Cueva del gato Silvestre",
+            "x": 150.0,
+            "y": 250.0,
+            "recursos": {
+                "agua": 50,
+                "comida": 50
+            }
+        },
+        {
+            "id": "TASMANIA",
+            "nombre": "Tasmania",
+            "descripcion": "Cueva del Demonio de Tasmania",
+            "x": 300.0,
+            "y": 200.0,
+            "recursos": {
+                "agua": 60,
+                "comida": 60
+            }
+        },
+        {
+            "id": "COYOTE",
+            "nombre": "Coyote",
+            "descripcion": "Cueva del Coyote",
+            "x": 500.0,
+            "y": 100.0,
+            "recursos": {
+                "agua": 45,
+                "comida": 45
+            }
+        },
+        {
+            "id": "BUNNY",
+            "nombre": "Bunny",
+            "descripcion": "Cueva de Bugs Bunny",
+            "x": 400.0,
+            "y": 200.0,
+            "recursos": {
+                "agua": 75,
+                "comida": 75
+            }
+        },
+        {
+            "id": "MARVIN",
+            "nombre": "Marvin",
+            "descripcion": "Cueva de Marvin el Marciano",
+            "x": 480.0,
+            "y": 250.0,
+            "recursos": {
+                "agua": 40,
+                "comida": 40
+            }
+        },
+        {
+            "id": "PIOLIN",
+            "nombre": "PIOLIN",
+            "descripcion": "Cueva de PIOLIN",
+            "x": 150.0,
+            "y": 350.0,
+            "recursos": {
+                "agua": 35,
+                "comida": 35
+            }
+        },
+        {
+            "id": "YAYITA",
+            "nombre": "Yayita",
+            "descripcion": "Cueva de Yayita",
+            "x": 280.0,
+            "y": 320.0,
+            "recursos": {
+                "agua": 55,
+                "comida": 55
+            }
+        },
+        {
+            "id": "POPEYE",
+            "nombre": "Popeye",
+            "descripcion": "Cueva de Popeye",
+            "x": 250.0,
+            "y": 450.0,
+            "recursos": {
+                "agua": 65,
+                "comida": 65
+            }
+        },
+        {
+            "id": "CORRECAMINOS",
+            "nombre": "Correcaminos",
+            "descripcion": "Cueva del Correcaminos",
+            "x": 400.0,
+            "y": 380.0,
+            "recursos": {
+                "agua": 50,
+                "comida": 50
+            }
+        }
+    ],
+    "aristas": [
+        {
+            "desde": "SILVESTRE",
+            "hasta": "TASMANIA",
+            "distancia": 15.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "TASMANIA",
+            "hasta": "COYOTE",
+            "distancia": 21.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "SILVESTRE",
+            "hasta": "PIOLIN",
+            "distancia": 10.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "TASMANIA",
+            "hasta": "YAYITA",
+            "distancia": 16.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "PIOLIN",
+            "hasta": "YAYITA",
+            "distancia": 25.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "TASMANIA",
+            "hasta": "BUNNY",
+            "distancia": 33.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "BUNNY",
+            "hasta": "COYOTE",
+            "distancia": 58.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "BUNNY",
+            "hasta": "MARVIN",
+            "distancia": 2.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "YAYITA",
+            "hasta": "BUNNY",
+            "distancia": 22.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "YAYITA",
+            "hasta": "CORRECAMINOS",
+            "distancia": 60.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "YAYITA",
+            "hasta": "POPEYE",
+            "distancia": 30.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "BUNNY",
+            "hasta": "CORRECAMINOS",
+            "distancia": 44.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        },
+        {
+            "desde": "POPEYE",
+            "hasta": "CORRECAMINOS",
+            "distancia": 5.0,
+            "es_dirigido": false,
+            "es_obstruido": false
+        }
+    ],
+    "es_dirigido": false
+}

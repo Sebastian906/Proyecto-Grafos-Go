@@ -12,6 +12,8 @@ type MainMenu struct {
 	validacionSvc   *service.ServicioValidacion
 	conexionSvc     *service.ServicioConexion
 	analysisHandler *handler.AnalysisHandler
+	grafoHandler    *handler.GraphHandler
+	cuevaHandler    *handler.CaveHandler
 }
 
 func NuevoMainMenu(
@@ -20,6 +22,8 @@ func NuevoMainMenu(
 	validacionSvc *service.ServicioValidacion,
 	conexionSvc *service.ServicioConexion,
 	analysisHandler *handler.AnalysisHandler,
+	grafoHandler *handler.GraphHandler,
+	cuevaHandler *handler.CaveHandler,
 ) *MainMenu {
 	return &MainMenu{
 		grafoSvc:        grafoSvc,
@@ -27,6 +31,8 @@ func NuevoMainMenu(
 		validacionSvc:   validacionSvc,
 		conexionSvc:     conexionSvc,
 		analysisHandler: analysisHandler,
+		grafoHandler:    grafoHandler,
+		cuevaHandler:    cuevaHandler,
 	}
 }
 

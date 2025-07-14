@@ -25,3 +25,32 @@
 go.work
 
 # End of https://www.toptal.com/developers/gitignore/api/go
+
+# Archivos temporales específicos del proyecto
+*_test.go  # (en raíz, no en tests/)
+test_*.go  # (en raíz)
+debug_*.go
+verify_*.go
+final_*.go
+simple_*.go
+basic_*.go
+
+# Scripts temporales
+demo_*
+run_*.*
+test_*.*
+
+# Carpetas temporales
+demos/
+temp/
+tmp/
+
+# Ejecutables específicos del proyecto
+proyecto-grafos-go
+proyecto-grafos-go.exe
+main.exe
+cmd.exe
+
+# Archivos de configuración temporal
+*.tmp
+*.temp

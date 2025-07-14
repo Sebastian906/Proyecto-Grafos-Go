@@ -1,4 +1,4 @@
-package service_test
+package unit
 
 import (
 	"proyecto-grafos-go/internal/domain"

@@ -7,6 +7,7 @@ import (
 	"proyecto-grafos-go/internal/repository"
 	"proyecto-grafos-go/internal/service"
 	"proyecto-grafos-go/internal/ui/cli"
+	"proyecto-grafos-go/pkg/utils"
 	"strings"
 )
 
@@ -35,23 +36,33 @@ func main() {
 	simulationHandler := handler.NuevoSimulationHandler(truckSvc, traversalSvc, grafoSvc)
 	traversalHandler := handler.NuevoTraversalHandler(traversalSvc, grafoSvc)
 	analysisHandler := handler.NuevoAnalysisHandler(mstSvc)
+	grafoHandler := handler.NuevoGraphHandler(grafoSvc)
+	cuevaHandler := handler.NuevoCaveHandler(cuevaSvc)
 
-	// Cargar datos de ejemplo si existe (usar el grafo complejo con 9 cuevas)
-	if err := grafoSvc.CargarGrafo("caves_directed_example.json"); err != nil {
-		// Si no existe el archivo dirigido, intentar con el simple
-		if err := grafoSvc.CargarGrafo("caves_example.json"); err != nil {
-			fmt.Printf("INFO: No se pudo cargar archivo de ejemplo: %s\n", err.Error())
-			fmt.Println("NOTA: Puede crear cuevas manualmente desde el menu")
+	// Cargar configuración por defecto de Cueva Acme
+	if rutaConfiguracion, err := utils.ObtenerRutaConfiguracionCuevaAcmePorDefecto(); err == nil {
+		if err := grafoSvc.CargarGrafo(rutaConfiguracion); err != nil {
+			fmt.Printf("ERROR: No se pudo cargar la configuración de Cueva Acme: %s\n", err.Error())
 		} else {
-			fmt.Println("EXITO: Datos de ejemplo basicos cargados exitosamente (3 cuevas)")
+			fmt.Println("✓ Configuración de Cueva Acme cargada exitosamente (10 cuevas interconectadas)")
 		}
 	} else {
-		fmt.Println("EXITO: Datos de ejemplo completos cargados exitosamente (9 cuevas)")
-		fmt.Println("INFO: Grafo dirigido cargado - ideal para probar deteccion de cuevas inaccesibles")
+		// Si no existe, intentar cargar datos de ejemplo alternativos
+		if err := grafoSvc.CargarGrafo("caves_directed_example.json"); err != nil {
+			// Si no existe el archivo dirigido, intentar con el simple
+			if err := grafoSvc.CargarGrafo("caves_example.json"); err != nil {
+				fmt.Printf("INFO: No se pudo cargar ningún archivo de configuración: %s\n", err.Error())
+				fmt.Println("NOTA: Puede crear cuevas manualmente desde el menu")
+			} else {
+				fmt.Println("INFO: Datos de ejemplo básicos cargados (3 cuevas) - Para usar Cueva Acme, coloque el archivo correspondiente")
+			}
+		} else {
+			fmt.Println("INFO: Datos de ejemplo dirigidos cargados (9 cuevas) - Para usar Cueva Acme, coloque el archivo correspondiente")
+		}
 	}
 
 	// Crear menús actualizados
-	mainMenu := cli.NuevoMainMenu(grafoSvc, cuevaSvc, validacionSvc, conexionSvc, analysisHandler)
+	mainMenu := cli.NuevoMainMenu(grafoSvc, cuevaSvc, validacionSvc, conexionSvc, analysisHandler, grafoHandler, cuevaHandler)
 
 	// Agregar funcionalidad de simulación
 	fmt.Println("\nIniciando interfaz de usuario...")

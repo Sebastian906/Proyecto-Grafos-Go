@@ -70,10 +70,57 @@ func (g *Grafo) AgregarArista(arista *Arista) error {
 	return nil
 }
 
-// Función para obtener todas las aristas del grafo
+// Función para formatear los datos del grafo
+func (g *Grafo) String() string {
+	return fmt.Sprintf("Grafo{Cuevas: %d, Aristas: %d, EsDirigido: %t}",
+		len(g.Cuevas), len(g.Aristas), g.EsDirigido)
+}
+
+// EliminarArista elimina una arista del grafo
+func (g *Grafo) EliminarArista(aristaBorrar *Arista) error {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	for i, arista := range g.Aristas {
+		if arista.Desde == aristaBorrar.Desde && arista.Hasta == aristaBorrar.Hasta {
+			// Eliminar arista del slice
+			g.Aristas = append(g.Aristas[:i], g.Aristas[i+1:]...)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("arista no encontrada")
+}
+
+// EliminarCueva elimina una cueva del grafo junto con todas sus aristas
+func (g *Grafo) EliminarCueva(id string) error {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	if _, existe := g.Cuevas[id]; !existe {
+		return fmt.Errorf("cueva no encontrada")
+	}
+
+	// Eliminar todas las aristas relacionadas con la cueva
+	nuevasAristas := []*Arista{}
+	for _, arista := range g.Aristas {
+		if arista.Desde != id && arista.Hasta != id {
+			nuevasAristas = append(nuevasAristas, arista)
+		}
+	}
+	g.Aristas = nuevasAristas
+
+	// Eliminar la cueva
+	delete(g.Cuevas, id)
+	return nil
+}
+
+// ObtenerAristas retorna todas las aristas del grafo
 func (g *Grafo) ObtenerAristas() []*Arista {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
+
+	// Crear una copia para evitar modificaciones externas
 	aristas := make([]*Arista, len(g.Aristas))
 	copy(aristas, g.Aristas)
 	return aristas
@@ -96,7 +143,7 @@ func (g *Grafo) ObtenerVecinos(caveID string) []string {
 // Obtener aristas entrantes hacia una cueva
 func (g *Grafo) ProximasAristas(caveID string) []*Arista {
 	g.mu.RLock()
-    defer g.mu.RUnlock()
+	defer g.mu.RUnlock()
 
 	var proximo []*Arista
 	for _, arista := range g.Aristas {
@@ -137,8 +184,40 @@ func (g *Grafo) NumeroAristas() int {
 	return len(g.Aristas)
 }
 
-// Función para formatear los datos del grafo
-func (g *Grafo) String() string {
-	return fmt.Sprintf("Grafo{Cuevas: %d, Aristas: %d, EsDirigido: %t}",
-		len(g.Cuevas), len(g.Aristas), g.EsDirigido)
+// AgregarConexion es un método de conveniencia para agregar una conexión entre dos cuevas
+func (g *Grafo) AgregarConexion(desde, hasta string, distancia float64) error {
+	arista := &Arista{
+		Desde:       desde,
+		Hasta:       hasta,
+		Distancia:   distancia,
+		EsDirigido:  g.EsDirigido,
+		EsObstruido: false,
+	}
+	return g.AgregarArista(arista)
+}
+
+// ExisteConexion verifica si existe una conexión entre dos cuevas
+func (g *Grafo) ExisteConexion(desde, hasta string) bool {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+
+	for _, arista := range g.Aristas {
+		if arista.Desde == desde && arista.Hasta == hasta {
+			return true
+		}
+	}
+	return false
+}
+
+// ObtenerConexion obtiene la arista entre dos cuevas
+func (g *Grafo) ObtenerConexion(desde, hasta string) (*Arista, bool) {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+
+	for _, arista := range g.Aristas {
+		if arista.Desde == desde && arista.Hasta == hasta {
+			return arista, true
+		}
+	}
+	return nil, false
 }
